@@ -1,0 +1,6 @@
+.vscode/
+obj/
+include/asio/
+include/asio.hpp
+
+*.exe
