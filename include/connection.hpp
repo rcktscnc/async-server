@@ -11,9 +11,9 @@ public:
     using ptr = std::shared_ptr<connection>;
 
     static std::shared_ptr<connection> create(asio::io_service& io_service);
-    tcp::socket& socket();
+    tcp::socket& get_socket();
     void start();
-    
+
 private:
     tcp::socket socket_;
     std::string message_;

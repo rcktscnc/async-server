@@ -20,5 +20,5 @@ void server::start_accept()
         start_accept();
     };
 
-    acceptor_.async_accept(new_connection->socket(), handle_accept);
+    acceptor_.async_accept(new_connection->get_socket(), handle_accept);
 }
