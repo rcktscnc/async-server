@@ -1,12 +1,22 @@
 #include <connection.hpp>
+#include <connection_pool.hpp>
 
-connection::connection(asio::io_service& io_service) : socket_(io_service)
+#include <iostream> // REMOVE
+
+using namespace asio::ip;
+
+connection::connection(asio::io_service& io_service, connection_pool& clients) : socket_(io_service), clients_(clients)
 {
 }
 
-std::shared_ptr<connection> connection::create(asio::io_service& io_service)
+connection::~connection()
 {
-    return std::shared_ptr<connection>(new connection(io_service));
+    std::cout << "DESTROYED\n";
+}
+
+std::shared_ptr<connection> connection::create(asio::io_service& io_service, connection_pool& clients)
+{
+    return std::shared_ptr<connection>(new connection(io_service, clients));
 }
 
 tcp::socket& connection::get_socket()
@@ -16,11 +26,19 @@ tcp::socket& connection::get_socket()
 
 void connection::start()
 {
-    message_ = "Test11111223356";
+    clients_.add(shared_from_this());
+}
 
-    auto handle_write = [stay_alive = shared_from_this()](const asio::error_code& err, std::size_t bytes_transferred)
+void connection::send(std::string& message)
+{
+    auto handle_write = [this, shared_ref = shared_from_this()](const asio::error_code& err, std::size_t bytes_transferred)
     {
+        if (err)
+        {
+            std::cout << "Error : " << err << "\n";
+            clients_.remove(shared_ref);
+        }
     };
 
-    asio::async_write(socket_, asio::buffer(message_), handle_write);
+    asio::async_write(socket_, asio::buffer(message), handle_write);
 }

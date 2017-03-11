@@ -1,22 +1,29 @@
-#define ASIO_STANDALONE
+#ifndef __CONNECTION_HPP__
+#define __CONNECTION_HPP__
 
+#include <string>
 #include <memory>
-#include <asio.hpp>
+#include <standalone_asio.hpp>
 
-using namespace asio::ip;
+class connection_pool;
 
 class connection : public std::enable_shared_from_this<connection>
 {
 public:
     using ptr = std::shared_ptr<connection>;
 
-    static std::shared_ptr<connection> create(asio::io_service& io_service);
-    tcp::socket& get_socket();
+    static std::shared_ptr<connection> create(asio::io_service& io_service, connection_pool& clients);
+    asio::ip::tcp::socket& get_socket();
     void start();
+    void send(std::string& message);
+
+    ~connection(); // REMOVE
 
 private:
-    tcp::socket socket_;
-    std::string message_;
+    asio::ip::tcp::socket socket_;
+    connection_pool& clients_;
 
-    connection(asio::io_service& io_service);
+    connection(asio::io_service& io_service, connection_pool& clients);
 };
+
+#endif // __CONNECTION_HPP__

@@ -9,7 +9,7 @@ void run_server()
     try
     {
         asio::io_service io_service;
-        server server_(io_service);
+        server server_(io_service, 22334);
         io_service.run();
     }
     catch (std::exception& e)

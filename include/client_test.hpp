@@ -1,6 +1,4 @@
-#define ASIO_STANDALONE
-
-#include <asio.hpp>
+#include <standalone_asio.hpp>
 
 using namespace asio::ip;
 
@@ -12,6 +10,9 @@ void client()
     socket.connect(ep);
     asio::error_code err;
     char buf[512] = { 0 };
-    std::size_t len = socket.read_some(asio::buffer(buf), err);
-    std::cout.write(buf, len);
+    for (;;)
+    {
+        std::size_t len = socket.read_some(asio::buffer(buf), err);
+        std::cout.write(buf, len);
+    }
 }
