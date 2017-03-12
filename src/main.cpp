@@ -1,5 +1,3 @@
-#define ASIO_STANDALONE
-
 #include <iostream>
 #include <server.hpp>
 #include <client_test.hpp>

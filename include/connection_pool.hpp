@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 #include <set>
-#include <standalone_asio.hpp>
 #include <connection.hpp>
 
 class connection_pool
