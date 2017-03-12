@@ -14,7 +14,7 @@ SRC_PATH = src
 OBJ_PATH = obj
 
 # Compiler flags and linker options
-CFLAGS = $(INCLUDE_PATH) -g -O0 -Wall -std=c++11
+CFLAGS = $(INCLUDE_PATH) -g -O0 -Wall -std=c++14
 LFLAGS = $(LIBRARY_PATH) -lwsock32 -lWs2_32
 
 # Conditional options
