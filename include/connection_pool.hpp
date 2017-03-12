@@ -8,6 +8,7 @@
 
 class connection_pool
 {
+    friend class command;
 public:
     void add(connection::ptr connection);
     void remove(connection::ptr connection);

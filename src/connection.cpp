@@ -1,9 +1,8 @@
 #include <connection.hpp>
 #include <connection_pool.hpp>
+#include <iostream>
 
-#include <iostream> // REMOVE
-
-using namespace asio::ip;
+using asio::ip::tcp;
 
 connection::connection(asio::io_service& io_service, connection_pool& clients) : socket_(io_service), clients_(clients)
 {
