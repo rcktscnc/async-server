@@ -4,19 +4,19 @@
 
 using asio::ip::tcp;
 
-connection::connection(asio::io_service& io_service, asio::strand& write_strand, connection_pool& clients)
-    : socket_(io_service), write_strand_(write_strand), clients_(clients)
+connection::connection(asio::io_service& io_service, connection_pool& clients)
+    : socket_(io_service), clients_(clients)
 {
 }
 
 connection::~connection()
 {
-    std::cout << "DESTROYED\n";
+    std::cout << "DESTROYED";
 }
 
-std::shared_ptr<connection> connection::create(asio::io_service& io_service, asio::strand& write_strand, connection_pool& clients)
+std::shared_ptr<connection> connection::create(asio::io_service& io_service, connection_pool& clients)
 {
-    return std::shared_ptr<connection>(new connection(io_service, write_strand, clients));
+    return std::shared_ptr<connection>(new connection(io_service, clients));
 }
 
 tcp::socket& connection::get_socket()
@@ -29,7 +29,7 @@ void connection::start()
     clients_.add(shared_from_this());
 }
 
-void connection::send(std::string& message)
+void connection::send(const std::string& message)
 {
     auto handle_write = [this, shared_ref = shared_from_this()](const asio::error_code& err, std::size_t bytes_transferred)
     {
@@ -40,5 +40,5 @@ void connection::send(std::string& message)
         }
     };
 
-    asio::async_write(socket_, asio::buffer(message), write_strand_.wrap(handle_write));
+    asio::async_write(socket_, asio::buffer(message), handle_write);
 }

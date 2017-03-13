@@ -10,7 +10,7 @@ class command
 public:
     command(server& server);
     void send(std::string& message);
-    void execute(std::string& message);
+    void execute(std::string& input);
 
 private:
     server& server_;

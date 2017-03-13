@@ -1,7 +1,7 @@
-#include <iostream>
 #include <server.hpp>
 #include <client_test.hpp>
 #include <thread>
+#include <iostream>
 
 void run_server()
 {
