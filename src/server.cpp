@@ -4,7 +4,8 @@
 
 using asio::ip::tcp;
 
-server::server(asio::io_service& io_service, uint16_t port) : acceptor_(io_service, tcp::endpoint(tcp::v4(), port)), command_(*this)
+server::server(asio::io_service& io_service, uint16_t port)
+    : io_service_(io_service), acceptor_(io_service, tcp::endpoint(tcp::v4(), port)), write_strand_(io_service), command_(*this)
 {
     start_accept();
     start_input();
@@ -12,7 +13,7 @@ server::server(asio::io_service& io_service, uint16_t port) : acceptor_(io_servi
 
 void server::start_accept()
 {
-    connection::ptr new_connection = connection::create(acceptor_.get_io_service(), clients_);
+    connection::ptr new_connection = connection::create(acceptor_.get_io_service(), write_strand_, clients_);
 
     auto handle_accept = [this, new_connection](const asio::error_code& err)
     {
@@ -37,14 +38,18 @@ void server::start_input()
 {
     auto handle_input = [this]()
     {
-        for (;;)
-        {
+        /*for (;;)
+        {*/
             std::string message;
             std::cout << "> ";
             std::cin >> message;
             command_.execute(message);
-        }  
+            //command_.send(message);
+       /* }*/
+            start_input();
     };
 
-    input_thread_ = std::thread(handle_input);
+    //input_thread_ = std::thread(handle_input);
+
+    io_service_.post(handle_input);
 }

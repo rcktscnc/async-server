@@ -13,15 +13,17 @@ class server
 public:
     server(asio::io_service& io_service, uint16_t port);
     void send(std::string& message);
-    void start_input();
     
 private:
+    asio::io_service& io_service_;
     asio::ip::tcp::acceptor acceptor_;
+    asio::strand write_strand_;
+    command command_;
     std::thread input_thread_;
     connection_pool clients_;
-    command command_;
 
     void start_accept();
+    void start_input();
 };
 
 #endif // __SERVER_HPP__

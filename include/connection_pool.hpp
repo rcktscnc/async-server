@@ -2,17 +2,18 @@
 #define __CONNECTION_POOL_HPP__
 
 #include <memory>
+#include <vector>
 #include <string>
 #include <set>
 #include <connection.hpp>
 
 class connection_pool
 {
-    friend class command;
 public:
     void add(connection::ptr connection);
     void remove(connection::ptr connection);
     void send(std::string&  message);
+    std::vector<std::string> list_connections();
 
 private:
     std::set<connection::ptr> connections_;

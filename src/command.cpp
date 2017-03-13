@@ -1,6 +1,7 @@
 #include <command.hpp>
 #include <server.hpp>
 #include <iostream>
+#include <vector>
 
 command::command(server& server) : server_(server)
 {
@@ -19,6 +20,16 @@ void command::execute(std::string& message)
 
 void command::get_clients()
 {
-    for (auto connection : server_.clients_.connections_)
-        std::cout << connection->get_socket().remote_endpoint().address().to_string() << "\n";
+    /*std::vector<std::string> ips = server_.clients_.list_connections();
+    for (auto ip : ips)
+        std::cout << ip << "\n";*/
+
+    auto handle_list = [this]()
+    {
+        std::vector<std::string> ips = server_.clients_.list_connections();
+        for (auto ip : ips)
+            std::cout << ip << "\n";
+    };
+
+    server_.io_service_.post(server_.write_strand_.wrap(handle_list));
 }
