@@ -23,7 +23,10 @@ void server::start_accept()
     auto handle_accept = [this, new_connection](const asio::error_code& err)
     {
         if (err)
+        {
+            start_accept();
             return;
+        }
         
         new_connection->start();
         std::string message = "A CLIENT CONNECTED\n";

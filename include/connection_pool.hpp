@@ -18,7 +18,7 @@ public:
 private:
     asio::strand& write_strand_;
     std::set<connection::ptr> connections_;
-    /*void remove_dead_connections();*/
+    void remove_dead_connections();
 };
 
 #endif // __CONNECTION_POOL_HPP__

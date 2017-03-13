@@ -30,7 +30,7 @@ void connection_pool::send(std::string& message)
 
 std::vector<std::string> connection_pool::list_connections()
 {
-    //remove_dead_connections();
+    remove_dead_connections();
 
     std::vector<std::string> list;
     for (auto connection : connections_)
@@ -39,7 +39,7 @@ std::vector<std::string> connection_pool::list_connections()
     return list;
 }
 
-/*void connection_pool::remove_dead_connections()
+void connection_pool::remove_dead_connections()
 {
     for (auto connection : connections_)
     {
@@ -52,4 +52,4 @@ std::vector<std::string> connection_pool::list_connections()
             remove(connection);
         }
     }
-}*/
+}

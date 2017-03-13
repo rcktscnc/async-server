@@ -11,7 +11,7 @@ connection::connection(asio::io_service& io_service, connection_pool& clients)
 
 connection::~connection()
 {
-    std::cout << "DESTROYED";
+    std::cout << "DESTROYED\n";
 }
 
 std::shared_ptr<connection> connection::create(asio::io_service& io_service, connection_pool& clients)
