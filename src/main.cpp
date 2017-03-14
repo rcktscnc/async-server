@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     if (*argv[1] == 's')
         run_server();
     else if (*argv[1] == 'c')
-        client();
+        codenvy_client();
 
     return 0;
 }
