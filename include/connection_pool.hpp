@@ -8,15 +8,15 @@
 class connection_pool
 {
 public:
-    asio::strand container_strand;
-    connection_pool(asio::strand& write_strand);
+    connection_pool(asio::io_service& io_service);
     void add(connection::ptr connection);
     void remove(connection::ptr connection);
     void send(std::string&  message);
     void list_connections();
 
 private:
-    asio::strand& write_strand_;
+    asio::io_service& io_service_;
+    asio::strand container_strand_;
     std::set<connection::ptr> connections_;
 };
 

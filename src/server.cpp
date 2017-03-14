@@ -6,9 +6,9 @@
 using asio::ip::tcp;
 
 server::server(asio::io_service& io_service, uint16_t port)
-    : acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
-    write_strand_(io_service),
-    clients_(write_strand_),
+    : io_service_(io_service),
+    acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
+    clients_(io_service),
     command_(*this)
 {
     start_accept();
@@ -47,5 +47,5 @@ void server::read_input()
         read_input();
     };
     
-    write_strand_.get_io_service().post(handle_input);
+    io_service_.post(handle_input);
 }

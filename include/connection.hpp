@@ -22,6 +22,7 @@ public:
 private:
     asio::ip::tcp::socket socket_;
     connection_pool& clients_;
+    asio::strand write_strand_;
 
     connection(asio::io_service& io_service, connection_pool& clients);
 };

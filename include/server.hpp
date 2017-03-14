@@ -12,8 +12,8 @@ public:
     server(asio::io_service& io_service, uint16_t port);
     
 private:
+    asio::io_service& io_service_;
     asio::ip::tcp::acceptor acceptor_;
-    asio::strand write_strand_;
     connection_pool clients_;
     command command_;
 

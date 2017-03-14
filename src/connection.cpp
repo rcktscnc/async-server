@@ -5,7 +5,7 @@
 using asio::ip::tcp;
 
 connection::connection(asio::io_service& io_service, connection_pool& clients)
-    : socket_(io_service), clients_(clients)
+    : socket_(io_service), clients_(clients), write_strand_(io_service)
 {
 }
 
@@ -26,7 +26,7 @@ tcp::socket& connection::get_socket()
 
 void connection::start()
 {
-    clients_.container_strand.post([this]() { clients_.add(shared_from_this()); });
+    clients_.add(shared_from_this());
 }
 
 void connection::send(const std::string& message)
@@ -36,9 +36,9 @@ void connection::send(const std::string& message)
         if (err)
         {
             std::cout << "Error : " << err << "\n";
-            clients_.container_strand.post([this, shared_ref](){ clients_.remove(shared_ref); });
+            clients_.remove(shared_ref);
         }
     };
 
-    asio::async_write(socket_, asio::buffer(message), handle_write);
+    asio::async_write(socket_, asio::buffer(message), write_strand_.wrap(handle_write));
 }
