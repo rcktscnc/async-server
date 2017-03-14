@@ -1,8 +1,7 @@
 #include <connection_pool.hpp>
 #include <iostream> // remove?
 
-connection_pool::connection_pool(asio::io_service& io_service)
-    : io_service_(io_service), container_strand_(io_service)
+connection_pool::connection_pool(asio::io_service& io_service) : container_strand_(io_service)
 {
 }
 

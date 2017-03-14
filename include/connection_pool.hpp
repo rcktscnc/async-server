@@ -15,7 +15,6 @@ public:
     void list_connections();
 
 private:
-    asio::io_service& io_service_;
     asio::strand container_strand_;
     std::set<connection::ptr> connections_;
 };
