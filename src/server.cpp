@@ -17,35 +17,22 @@ server::server(asio::io_service& io_service, uint16_t port)
 
 void server::start_accept()
 {
-    connection::ptr new_connection = connection::create(acceptor_.get_io_service(), clients_);
-
-    auto handle_accept = [this, new_connection](const asio::error_code& err)
-    {
-        if (err)
-        {
-            start_accept();
-            return;
-        }
+    connection::ptr new_connection = connection::create(io_service_, clients_);
+    acceptor_.async_accept(new_connection->get_socket(), [this, new_connection](const asio::error_code& err) {
+        if (!err)
+            new_connection->start();
         
-        new_connection->start();
-        std::string message = "A CLIENT CONNECTED\n";
-        command_.send(message);
         start_accept();
-    };
-    
-    acceptor_.async_accept(new_connection->get_socket(), handle_accept);
+    });
 }
 
 void server::read_input()
 {
-    auto handle_input = [this]()
-    {
+    io_service_.post([this]() {
         std::string input;
         std::cout << "> ";
         std::getline(std::cin, input);
         command_.execute(input);
         read_input();
-    };
-    
-    io_service_.post(handle_input);
+    });
 }
