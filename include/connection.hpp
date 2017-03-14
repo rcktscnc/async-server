@@ -1,9 +1,9 @@
 #ifndef __CONNECTION_HPP__
 #define __CONNECTION_HPP__
 
+#include <standalone_asio.hpp>
 #include <string>
 #include <memory>
-#include <standalone_asio.hpp>
 
 class connection_pool;
 
@@ -16,14 +16,12 @@ public:
     asio::ip::tcp::socket& get_socket();
     void start();
     void send(const std::string& message);
-
     ~connection(); // REMOVE
 
 private:
     asio::ip::tcp::socket socket_;
     connection_pool& clients_;
     asio::strand write_strand_;
-
     connection(asio::io_service& io_service, connection_pool& clients);
 };
 

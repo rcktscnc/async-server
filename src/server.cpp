@@ -1,6 +1,6 @@
 #include <server.hpp>
 #include <connection.hpp>
-#include <iostream>
+#include <iostream> // remove?
 #include <string>
 
 using asio::ip::tcp;

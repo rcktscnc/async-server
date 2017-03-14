@@ -1,6 +1,5 @@
 #include <command.hpp>
 #include <server.hpp>
-#include <iostream>
 
 static std::vector<std::string> split_string(const std::string& s, char seperator)
 {
