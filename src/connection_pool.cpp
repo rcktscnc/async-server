@@ -1,7 +1,8 @@
 #include <connection_pool.hpp>
 #include <iostream>
 
-connection_pool::connection_pool(asio::strand& write_strand) : write_strand_(write_strand)
+connection_pool::connection_pool(asio::strand& write_strand)
+    : container_strand(write_strand.get_io_service()), write_strand_(write_strand)
 {
 }
 
@@ -28,28 +29,14 @@ void connection_pool::send(std::string& message)
     write_strand_.post(handle_send);
 }
 
-std::vector<std::string> connection_pool::list_connections()
+void connection_pool::list_connections()
 {
-    remove_dead_connections();
-
-    std::vector<std::string> list;
+    /*std::vector<std::string> list;
     for (auto connection : connections_)
-        list.push_back(connection->get_socket().remote_endpoint().address().to_string());
+        list.push_back(connection->get_socket().remote_endpoint().address().to_string());*/
 
-    return list;
-}
-
-void connection_pool::remove_dead_connections()
-{
-    for (auto connection : connections_)
-    {
-        try
-        {
-            connection->get_socket().remote_endpoint().address().to_string();
-        }
-        catch (std::exception& e)
-        {
-            remove(connection);
-        }
-    }
+    container_strand.post([this](){ 
+        for (auto connection : connections_)
+            std::cout << connection->get_socket().remote_endpoint().address().to_string() << "\n";
+    });
 }

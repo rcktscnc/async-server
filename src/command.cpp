@@ -14,7 +14,7 @@ static std::vector<std::string> split_string(const std::string& s, char seperato
         prev_pos = ++pos;
     }
 
-    output.push_back(s.substr(prev_pos, pos-prev_pos)); // Last word
+    output.push_back(s.substr(prev_pos, pos-prev_pos)); // Last word.
 
     return output;
 }
@@ -37,21 +37,5 @@ void command::execute(std::string& input)
     if (token[0] == "send" && token.size() == 2)
         send(token[1]);
     if (token[0] == "clients")
-        get_clients();
-}
-
-void command::get_clients()
-{
-    std::vector<std::string> ips = server_.clients_.list_connections();
-    for (auto ip : ips)
-        std::cout << ip << "\n";
-    
-    /*auto handle_list = [this]()
-    {
-        std::vector<std::string> ips = server_.clients_.list_connections();
-        for (auto ip : ips)
-            std::cout << ip << "\n";
-    };
-
-    server_.io_service_.post(server_.write_strand_.wrap(handle_list));*/
+        server_.clients_.list_connections();
 }

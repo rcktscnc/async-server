@@ -6,8 +6,7 @@
 using asio::ip::tcp;
 
 server::server(asio::io_service& io_service, uint16_t port)
-    : io_service_(io_service),
-    acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
+    : acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
     write_strand_(io_service),
     clients_(write_strand_),
     command_(*this)
@@ -33,7 +32,7 @@ void server::start_accept()
         command_.send(message);
         start_accept();
     };
-
+    
     acceptor_.async_accept(new_connection->get_socket(), handle_accept);
 }
 
@@ -47,6 +46,6 @@ void server::read_input()
         command_.execute(input);
         read_input();
     };
-
-    io_service_.post(write_strand_.wrap(handle_input));
+    
+    write_strand_.get_io_service().post(handle_input);
 }

@@ -26,7 +26,7 @@ tcp::socket& connection::get_socket()
 
 void connection::start()
 {
-    clients_.add(shared_from_this());
+    clients_.container_strand.post([this]() { clients_.add(shared_from_this()); });
 }
 
 void connection::send(const std::string& message)
@@ -36,7 +36,7 @@ void connection::send(const std::string& message)
         if (err)
         {
             std::cout << "Error : " << err << "\n";
-            clients_.remove(shared_ref);
+            clients_.container_strand.post([this, shared_ref](){ clients_.remove(shared_ref); });
         }
     };
 
