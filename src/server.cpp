@@ -2,11 +2,13 @@
 #include <connection.hpp>
 #include <iostream> // remove?
 #include <string>
+#include <utility>
 
 using asio::ip::tcp;
 
 server::server(asio::io_service& io_service, uint16_t port)
     : io_service_(io_service),
+    socket_(io_service),
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
     clients_(io_service),
     command_(*this)
@@ -17,10 +19,9 @@ server::server(asio::io_service& io_service, uint16_t port)
 
 void server::start_accept()
 {
-    connection::ptr new_connection = connection::create(io_service_, clients_);
-    acceptor_.async_accept(new_connection->get_socket(), [this, new_connection](const asio::error_code& err) {
+    acceptor_.async_accept(socket_, [this](const asio::error_code& err) {
         if (!err)
-            new_connection->start();
+            connection::create(io_service_, std::move(socket_), clients_)->start();
         
         start_accept();
     });

@@ -33,8 +33,7 @@ void connection_pool::send(std::string& message)
 void connection_pool::list_connections()
 {
     container_strand_.post([this]() {
-        asio::error_code err; // Only needed to call the non-throwable version of remote_endpoint().
         for (auto connection : connections_)
-            std::cout << "-- " << connection->get_socket().remote_endpoint(err).address().to_string() << "\n";
+            std::cout << "-- " << connection->remote_address() << "\n";
     });
 }
