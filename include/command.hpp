@@ -13,7 +13,7 @@ public:
     void execute(std::string& input);
 
 private:
-    server& server_;
+    server& _server;
 };
 
 #endif

@@ -12,11 +12,11 @@ public:
     server(asio::io_service& io_service, uint16_t port);
     
 private:
-    asio::io_service& io_service_;
-    asio::ip::tcp::socket socket_;
-    asio::ip::tcp::acceptor acceptor_;
-    connection_pool clients_;
-    command command_;
+    asio::io_service& _io_service;
+    asio::ip::tcp::socket _socket;
+    asio::ip::tcp::acceptor _acceptor;
+    connection_pool _clients;
+    command _command;
 
     void start_accept();
     void read_input();

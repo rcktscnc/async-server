@@ -19,9 +19,9 @@ public:
     ~connection(); // REMOVE
 
 private:
-    asio::ip::tcp::socket socket_;
-    connection_pool& clients_;
-    asio::strand write_strand_;
+    asio::ip::tcp::socket _socket;
+    connection_pool& _clients;
+    asio::strand _write_strand;
     connection(asio::io_service& io_service, asio::ip::tcp::socket socket, connection_pool& clients);
 };
 

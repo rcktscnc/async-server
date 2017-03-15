@@ -6,7 +6,7 @@
 using asio::ip::tcp;
 
 connection::connection(asio::io_service& io_service, tcp::socket socket, connection_pool& clients)
-    : socket_(std::move(socket)), clients_(clients), write_strand_(io_service)
+    : _socket(std::move(socket)), _clients(clients), _write_strand(io_service)
 {
 }
 
@@ -22,17 +22,17 @@ std::shared_ptr<connection> connection::create(asio::io_service& io_service, tcp
 
 void connection::start()
 {
-    clients_.add(shared_from_this());
+    _clients.add(shared_from_this());
 }
 
 void connection::send(const std::string& message)
 {
-    asio::async_write(socket_, asio::buffer(message),
-        write_strand_.wrap([this, shared_this = shared_from_this()](const asio::error_code& err, std::size_t bytes_transferred) {
+    asio::async_write(_socket, asio::buffer(message),
+        _write_strand.wrap([this, shared_this = shared_from_this()](const asio::error_code& err, std::size_t bytes_transferred) {
         if (err)
         {
             std::cout << "Error : " << err << "\n";
-            clients_.remove(shared_this);
+            _clients.remove(shared_this);
         }
     }));
 }
@@ -40,5 +40,5 @@ void connection::send(const std::string& message)
 std::string connection::remote_address()
 {
     asio::error_code err; // Only needed to call the non-throwable version of remote_endpoint().
-    return socket_.remote_endpoint(err).address().to_string();
+    return _socket.remote_endpoint(err).address().to_string();
 }

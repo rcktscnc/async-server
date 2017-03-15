@@ -15,8 +15,8 @@ public:
     void list_connections();
 
 private:
-    asio::strand container_strand_;
-    std::set<connection::ptr> connections_;
+    asio::strand _container_strand;
+    std::set<connection::ptr> _connections;
 };
 
 #endif // __CONNECTION_POOL_HPP__

@@ -18,13 +18,13 @@ static std::vector<std::string> split_string(const std::string& s, char seperato
     return output;
 }
 
-command::command(server& server) : server_(server)
+command::command(server& server) : _server(server)
 {
 }
 
 void command::send(std::string& message)
 {
-    server_.clients_.send(message);
+    _server._clients.send(message);
 }
 
 void command::execute(std::string& input)
@@ -36,5 +36,5 @@ void command::execute(std::string& input)
     if (token[0] == "send" && token.size() == 2)
         send(token[1]);
     if (token[0] == "clients")
-        server_.clients_.list_connections();
+        _server._clients.list_connections();
 }

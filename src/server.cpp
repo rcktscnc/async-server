@@ -7,11 +7,11 @@
 using asio::ip::tcp;
 
 server::server(asio::io_service& io_service, uint16_t port)
-    : io_service_(io_service),
-    socket_(io_service),
-    acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
-    clients_(io_service),
-    command_(*this)
+    : _io_service(io_service),
+    _socket(io_service),
+    _acceptor(io_service, tcp::endpoint(tcp::v4(), port)),
+    _clients(io_service),
+    _command(*this)
 {
     start_accept();
     read_input();
@@ -19,9 +19,9 @@ server::server(asio::io_service& io_service, uint16_t port)
 
 void server::start_accept()
 {
-    acceptor_.async_accept(socket_, [this](const asio::error_code& err) {
+    _acceptor.async_accept(_socket, [this](const asio::error_code& err) {
         if (!err)
-            connection::create(io_service_, std::move(socket_), clients_)->start();
+            connection::create(_io_service, std::move(_socket), _clients)->start();
         
         start_accept();
     });
@@ -29,11 +29,11 @@ void server::start_accept()
 
 void server::read_input()
 {
-    io_service_.post([this]() {
+    _io_service.post([this]() {
         std::string input;
         std::cout << "> ";
         std::getline(std::cin, input);
-        command_.execute(input);
+        _command.execute(input);
         read_input();
     });
 }
