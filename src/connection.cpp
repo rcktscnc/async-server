@@ -27,15 +27,14 @@ void connection::start()
 
 void connection::send(const std::string& message)
 {
-    auto handle_write = [this, shared_this = shared_from_this()](const asio::error_code& err, std::size_t bytes_transferred) {
+    asio::async_write(socket_, asio::buffer(message),
+        write_strand_.wrap([this, shared_this = shared_from_this()](const asio::error_code& err, std::size_t bytes_transferred) {
         if (err)
         {
             std::cout << "Error : " << err << "\n";
             clients_.remove(shared_this);
         }
-    };
-
-    asio::async_write(socket_, asio::buffer(message), write_strand_.wrap(handle_write));
+    }));
 }
 
 std::string connection::remote_address()
