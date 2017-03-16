@@ -16,7 +16,7 @@ public:
     void start();
     void send(const std::string& message);
     std::string remote_address();
-    ~connection(); // REMOVE
+    ~connection();
 
 private:
     asio::ip::tcp::socket _socket;

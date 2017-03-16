@@ -9,8 +9,7 @@ class command
 {
 public:
     command(server& server);
-    void send(std::string& message);
-    void execute(std::string& input);
+    void execute(const std::string& input);
 
 private:
     server& _server;

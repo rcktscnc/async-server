@@ -26,7 +26,7 @@ void connection_pool::remove(connection::ptr connection)
     });
 }
 
-void connection_pool::send(std::string& message)
+void connection_pool::send(const std::string& message)
 {
     _container_strand.post([this, message]() {
         for (auto connection : _connections)

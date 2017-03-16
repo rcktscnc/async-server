@@ -22,19 +22,14 @@ command::command(server& server) : _server(server)
 {
 }
 
-void command::send(std::string& message)
-{
-    _server._clients.send(message);
-}
-
-void command::execute(std::string& input)
+void command::execute(const std::string& input)
 {
     std::vector<std::string> token = split_string(input, ' ');
     if (token.size() < 1)
         return;
     
     if (token[0] == "send" && token.size() == 2)
-        send(token[1]);
+        _server._clients.send(token[1]);
     if (token[0] == "clients")
         _server._clients.list_connections();
 }
