@@ -32,7 +32,7 @@ void connection::send(const std::string& message)
         if (err)
         {
             std::cout << "Error : " << err << "\n";
-            _clients.remove(shared_this);
+            _clients.remove(const_cast<connection::ptr&&>(shared_this));
         }
     }));
 }

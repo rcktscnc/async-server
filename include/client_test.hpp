@@ -18,11 +18,11 @@ void client()
     }
 }
 
-void codenvy_client()
+void remote_client()
 {
     asio::io_service io_service;
     tcp::resolver resolver(io_service);
-    tcp::resolver::query query("node12.codenvy.io", "34169");
+    tcp::resolver::query query("ca3.shell.xShellz.com", "22334");
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
     tcp::socket socket(io_service);
     asio::connect(socket, endpoint_iterator);
