@@ -12,8 +12,8 @@ void run_server()
 
     try
     {
-        server server_(io_service, 22334);
-        for (std::size_t i = 0; i <  number_of_threads; ++i)
+        server server(io_service, 22334);
+        for (std::size_t i = 0; i < number_of_threads; ++i)
             threads.push_back(std::thread([&io_service](){ io_service.run(); }));
         for (auto& thread : threads)
             thread.join();

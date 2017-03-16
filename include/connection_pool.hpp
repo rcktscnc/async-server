@@ -12,7 +12,7 @@ class connection_pool
 public:
     connection_pool(asio::io_service& io_service);
     void add(connection::ptr&& connection);
-    void remove(connection::ptr connection);
+    void remove(const connection::ptr& connection);
     void send(const std::string&  message);
     void list_connections();
 

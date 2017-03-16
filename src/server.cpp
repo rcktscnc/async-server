@@ -19,7 +19,8 @@ server::server(asio::io_service& io_service, uint16_t port)
 
 void server::start_accept()
 {
-    _acceptor.async_accept(_socket, [this](const asio::error_code& err) {
+    _acceptor.async_accept(_socket, [this](const asio::error_code& err)
+    {
         if (!err)
             connection::create(_io_service, std::move(_socket), _clients)->start();
         
@@ -29,7 +30,8 @@ void server::start_accept()
 
 void server::read_input()
 {
-    _io_service.post([this]() {
+    _io_service.post([this]()
+    {
         std::string input;
         std::cout << "> ";
         std::getline(std::cin, input);
