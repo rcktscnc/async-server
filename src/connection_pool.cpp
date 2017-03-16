@@ -13,7 +13,7 @@ void connection_pool::add(connection::ptr&& connection)
     });
 }
 
-void connection_pool::remove(connection::ptr&& connection)
+void connection_pool::remove(connection::ptr connection)
 {
     _container_strand.post([this, connection]() {
         auto iterator = std::find_if(_connections.begin(), _connections.end(),

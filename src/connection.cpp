@@ -28,11 +28,11 @@ void connection::start()
 void connection::send(const std::string& message)
 {
     asio::async_write(_socket, asio::buffer(message),
-        _write_strand.wrap([this, shared_this = shared_from_this()](const asio::error_code& err, std::size_t bytes_transferred) {
+        _write_strand.wrap([this, shared_this = shared_from_this()](const asio::error_code& err, std::size_t bytes) {
         if (err)
         {
             std::cout << "Error : " << err << "\n";
-            _clients.remove(const_cast<connection::ptr&&>(shared_this));
+            _clients.remove(shared_this);
         }
     }));
 }
