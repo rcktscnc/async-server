@@ -1,6 +1,6 @@
 #include <connection.hpp>
 #include <connection_pool.hpp>
-#include <iostream> // remove?
+#include <iostream>
 #include <utility>
 
 using asio::ip::tcp;
@@ -12,7 +12,7 @@ connection::connection(asio::io_service& io_service, tcp::socket socket, connect
 
 connection::~connection()
 {
-    std::cout << "DESTROYED\n";
+    std::cout << "debug: object destroyed\n";
 }
 
 std::shared_ptr<connection> connection::create(asio::io_service& io_service, tcp::socket socket, connection_pool& clients)
@@ -32,7 +32,7 @@ void connection::send(const std::string& message)
         {
             if (err)
             {
-                std::cout << "Error : " << err << "\n";
+                std::cout << "error: " << err << "\n";
                 _clients.remove(shared_this);
             }
         })
@@ -41,6 +41,6 @@ void connection::send(const std::string& message)
 
 std::string connection::remote_address()
 {
-    asio::error_code err; // Only needed to call the non-throwable version of remote_endpoint().
+    asio::error_code err;
     return _socket.remote_endpoint(err).address().to_string();
 }

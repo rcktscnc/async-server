@@ -1,6 +1,6 @@
 #include <server.hpp>
 #include <connection.hpp>
-#include <iostream> // remove?
+#include <iostream>
 #include <string>
 #include <utility>
 
@@ -33,7 +33,6 @@ void server::read_input()
     _io_service.post([this]()
     {
         std::string input;
-        std::cout << "> ";
         std::getline(std::cin, input);
         _command.execute(input);
         read_input();

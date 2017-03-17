@@ -1,5 +1,6 @@
 #include <command.hpp>
 #include <server.hpp>
+#include <iostream>
 
 static std::vector<std::string> split_string(const std::string& s, char seperator)
 {
@@ -13,7 +14,7 @@ static std::vector<std::string> split_string(const std::string& s, char seperato
         prev_pos = ++pos;
     }
 
-    output.push_back(s.substr(prev_pos, pos-prev_pos)); // Last word.
+    output.push_back(s.substr(prev_pos, pos-prev_pos));
 
     return output;
 }
@@ -28,8 +29,22 @@ void command::execute(const std::string& input)
     if (token.size() < 1)
         return;
     
-    if (token[0] == "send" && token.size() == 2)
-        _server._clients.send(token[1]);
+    if (token[0] == "send" && token.size() == 3)
+        send(token[2], token[1]);
+    if (token[0] == "broadcast" && token.size() == 2)
+        _server._clients.broadcast(token[1]);
     if (token[0] == "clients")
         _server._clients.list_connections();
+}
+
+void command::send(const std::string& message, const std::string& client_id)
+{
+    try
+    {
+        _server._clients.send(message, std::stoul(client_id));
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "error: invalid argument." << std::endl;
+    }
 }

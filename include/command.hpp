@@ -10,6 +10,7 @@ class command
 public:
     command(server& server);
     void execute(const std::string& input);
+    void send(const std::string& message, const std::string& client_id);
 
 private:
     server& _server;
