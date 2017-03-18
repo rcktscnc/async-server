@@ -1,15 +1,17 @@
-#ifndef __MESSAGE_HPP__
-#define __MESSAGE_HPP__
+#ifndef __ASYNC_MESSAGE_HPP__
+#define __ASYNC_MESSAGE_HPP__
 
-#include <cstddef>
+#include <memory>
 
-class message
+class async_message
 {
 public:
+    using shared_ptr = std::shared_ptr<async_message>;
     enum { header_length = 4 };
     enum { max_body_length = 512 };
 
-    message();
+    static std::shared_ptr<async_message> create();
+    ~async_message();
     char* data();
     const char* data() const;
     char* body();
@@ -22,7 +24,9 @@ public:
 
 private:
     char _data[header_length + max_body_length];
-    std::size_t _body_length;
+    std::size_t _body_length = 0;
+
+    async_message();
 };
 
-#endif // __MESSAGE_HPP__
+#endif // __ASYNC_MESSAGE_HPP__

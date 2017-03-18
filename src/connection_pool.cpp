@@ -28,7 +28,7 @@ void connection_pool::remove(const connection::ptr& connection)
     });
 }
 
-void connection_pool::broadcast(const std::string& message)
+void connection_pool::broadcast(const async_message::shared_ptr& message)
 {
     _container_strand.post([this, message]()
     {
@@ -37,7 +37,7 @@ void connection_pool::broadcast(const std::string& message)
     });
 }
 
-void connection_pool::send(const std::string& message, std::size_t connection_id)
+void connection_pool::send(const async_message::shared_ptr& message, std::size_t connection_id)
 {
     _container_strand.post([this, message, connection_id]()
     {

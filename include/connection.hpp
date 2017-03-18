@@ -2,6 +2,7 @@
 #define __CONNECTION_HPP__
 
 #include <standalone_asio.hpp>
+#include <async_message.hpp>
 #include <string>
 #include <memory>
 
@@ -14,7 +15,7 @@ public:
 
     static std::shared_ptr<connection> create(asio::io_service& io_service, asio::ip::tcp::socket socket, connection_pool& clients);
     void start();
-    void send(const std::string& message);
+    void send(const async_message::shared_ptr& message);
     std::string remote_address();
     ~connection();
 

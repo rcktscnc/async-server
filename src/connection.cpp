@@ -12,7 +12,7 @@ connection::connection(asio::io_service& io_service, tcp::socket socket, connect
 
 connection::~connection()
 {
-    std::cout << "debug: object destroyed\n";
+    std::cout << "debug: connection destroyed\n";
 }
 
 std::shared_ptr<connection> connection::create(asio::io_service& io_service, tcp::socket socket, connection_pool& clients)
@@ -25,10 +25,10 @@ void connection::start()
     _clients.add(shared_from_this());
 }
 
-void connection::send(const std::string& message)
+void connection::send(const async_message::shared_ptr& message)
 {
-    asio::async_write(_socket, asio::buffer(message),
-        _write_strand.wrap([this, shared_this = shared_from_this()](const asio::error_code& err, std::size_t bytes)
+    asio::async_write(_socket, asio::buffer(message->data(), message->length()),
+        _write_strand.wrap([this, shared_this = shared_from_this(), message](const asio::error_code& err, std::size_t bytes)
         {
             if (err)
             {

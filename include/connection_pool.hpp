@@ -2,6 +2,7 @@
 #define __CONNECTION_POOL_HPP__
 
 #include <connection.hpp>
+#include <async_message.hpp>
 #include <string>
 #include <set>
 #include <vector>
@@ -13,8 +14,8 @@ public:
     connection_pool(asio::io_service& io_service);
     void add(connection::ptr&& connection);
     void remove(const connection::ptr& connection);
-    void broadcast(const std::string&  message);
-    void send(const std::string& message, std::size_t connection_id);
+    void broadcast(const async_message::shared_ptr& message);
+    void send(const async_message::shared_ptr& message, std::size_t connection_id);
     void list_connections();
 
 private:
