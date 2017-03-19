@@ -16,8 +16,6 @@ public:
 
 private:
     server& _server;
-
-    async_message::shared_ptr string_to_async_message(const std::string& message);
 };
 
 #endif

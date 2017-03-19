@@ -39,26 +39,17 @@ void command::execute(const std::string& input)
 
 void command::broadcast(const std::string& message)
 {
-    _server._clients.broadcast(string_to_async_message(message));
+    _server._clients.broadcast(async_message::create(message));
 }
 
 void command::send(const std::string& message, const std::string& client_id)
 {
     try
     {
-        _server._clients.send(string_to_async_message(message), std::stoul(client_id));
+        _server._clients.send(async_message::create(message), std::stoul(client_id));
     }
     catch (std::exception& e)
     {
         std::cerr << "error: invalid argument." << std::endl;
     }
-}
-
-async_message::shared_ptr command::string_to_async_message(const std::string& message)
-{
-    async_message::shared_ptr async_message = async_message::create();
-    async_message->set_body_length(message.length());
-    std::memcpy(async_message->body(), message.c_str(), async_message->body_length());
-    async_message->encode_header();
-    return async_message;
 }

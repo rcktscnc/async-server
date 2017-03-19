@@ -8,6 +8,13 @@ async_message::async_message()
 {
 }
 
+async_message::async_message(const std::string& message)
+{
+    set_body_length(message.length());
+    std::memcpy(body(), message.c_str(), body_length());
+    encode_header();
+}
+
 async_message::~async_message()
 {
     std::cout << "debug: message destroyed\n";
@@ -16,6 +23,11 @@ async_message::~async_message()
 std::shared_ptr<async_message> async_message::create()
 {
     return std::shared_ptr<async_message>(new async_message());
+}
+
+std::shared_ptr<async_message> async_message::create(const std::string& message)
+{
+    return std::shared_ptr<async_message>(new async_message(message));
 }
 
 char* async_message::data()

@@ -2,6 +2,7 @@
 #define __ASYNC_MESSAGE_HPP__
 
 #include <memory>
+#include <string>
 
 class async_message
 {
@@ -11,6 +12,7 @@ public:
     enum { max_body_length = 512 };
 
     static std::shared_ptr<async_message> create();
+    static std::shared_ptr<async_message> create(const std::string& message);
     ~async_message();
     char* data();
     const char* data() const;
@@ -27,6 +29,7 @@ private:
     std::size_t _body_length = 0;
 
     async_message();
+    async_message(const std::string& message);
 };
 
 #endif // __ASYNC_MESSAGE_HPP__
