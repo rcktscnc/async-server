@@ -34,12 +34,13 @@ void connection::send(const async_message::shared_ptr& message)
             {
                 std::cout << "error: " << err << "\n";
                 _clients.remove(shared_this);
+                return;
             }
         })
     );
 }
 
-void connection::receive(std::function<bool(const async_message::shared_ptr&)> handle)
+void connection::receive(const std::function<bool(const async_message::shared_ptr&)>& handle)
 {
     async_message::shared_ptr async_message = async_message::make_shared();
     asio::async_read(_socket, asio::buffer(async_message->data(), async_message::header_length),
@@ -47,16 +48,24 @@ void connection::receive(std::function<bool(const async_message::shared_ptr&)> h
         {
             if (err)
             {
-                std::cerr << "error: can't read from connection - " << err << std::endl;
+                std::cerr << "error: can't read header from connection - " << err << std::endl;
                 _clients.remove(shared_this);
                 return;
             }
             
             async_message->decode_header();
-            asio::read(_socket, asio::buffer(async_message->body(), async_message->body_length()));
+            asio::error_code read_err;
+            asio::read(_socket, asio::buffer(async_message->body(), async_message->body_length()), read_err);
+
+            if (read_err)
+            {
+                std::cerr << "error: can't read body from connection - " << err << std::endl;
+                _clients.remove(shared_this);
+                return;
+            }
             
             if(handle(async_message))
-                receive(handle);
+                receive(std::move(handle));
         })
     );
 }

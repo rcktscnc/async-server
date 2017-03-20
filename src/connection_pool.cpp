@@ -22,9 +22,10 @@ void connection_pool::remove(const connection::shared_ptr& connection)
             [&connection](const _pair_t& e) { return e.second == connection; });
         
         if (iterator != _connections.end())
+        {
             _connections.erase(iterator);
-        
-        std::cout << "system: client left. Total clients: " << _connections.size() << "\n";
+            std::cout << "system: client left. Total clients: " << _connections.size() << "\n";
+        }
     });
 }
 
@@ -53,13 +54,13 @@ void connection_pool::send(const async_message::shared_ptr& message, std::size_t
 
 void connection_pool::receive(std::size_t connection_id, std::function<bool(const async_message::shared_ptr&)> handle)
 {
-    _container_strand.post([this, connection_id, handle]()
+    _container_strand.post([this, connection_id, completion_handle = std::move(handle)]()
     {
         auto iterator = std::find_if(_connections.begin(), _connections.end(),
             [connection_id](const _pair_t& e) { return e.first == connection_id; });
         
         if (iterator != _connections.end())
-            iterator->second->receive(handle);
+            iterator->second->receive(completion_handle);
         else
             std::cout << "error: client not found\n";
     });
@@ -70,7 +71,7 @@ void connection_pool::list_connections()
     _container_strand.post([this]()
     {
         for (auto connection : _connections)
-            std::cout << "client: " << connection.first << " | " << connection.second->remote_address() << "\n";
+            std::cout << connection.first << " - " << connection.second->remote_address() << "\n";
     });
 }
 

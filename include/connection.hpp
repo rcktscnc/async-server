@@ -17,7 +17,7 @@ public:
     static std::shared_ptr<connection> make_shared(asio::io_service& io_service, asio::ip::tcp::socket socket, connection_pool& clients);
     void start();
     void send(const async_message::shared_ptr& message);
-    void receive(std::function<bool(const async_message::shared_ptr&)> handle);
+    void receive(const std::function<bool(const async_message::shared_ptr&)>& handle);
     std::string remote_address();
     ~connection();
 
