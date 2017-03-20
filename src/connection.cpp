@@ -6,7 +6,7 @@
 using asio::ip::tcp;
 
 connection::connection(asio::io_service& io_service, tcp::socket socket, connection_pool& clients)
-    : _socket(std::move(socket)), _clients(clients), _write_strand(io_service)
+    : _socket(std::move(socket)), _clients(clients), _write_strand(io_service), _read_strand(io_service)
 {
 }
 
@@ -15,7 +15,7 @@ connection::~connection()
     std::cout << "debug: connection destroyed\n";
 }
 
-std::shared_ptr<connection> connection::create(asio::io_service& io_service, tcp::socket socket, connection_pool& clients)
+std::shared_ptr<connection> connection::make_shared(asio::io_service& io_service, tcp::socket socket, connection_pool& clients)
 {
     return std::shared_ptr<connection>(new connection(io_service, std::move(socket), clients));
 }

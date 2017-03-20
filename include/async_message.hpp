@@ -11,8 +11,8 @@ public:
     enum { header_length = 4 };
     enum { max_body_length = 512 };
 
-    static std::shared_ptr<async_message> create();
-    static std::shared_ptr<async_message> create(const std::string& message);
+    static std::shared_ptr<async_message> make_shared();
+    static std::shared_ptr<async_message> make_shared(const std::string& message);
     ~async_message();
     char* data();
     const char* data() const;

@@ -20,12 +20,12 @@ async_message::~async_message()
     std::cout << "debug: message destroyed\n";
 }
 
-std::shared_ptr<async_message> async_message::create()
+std::shared_ptr<async_message> async_message::make_shared()
 {
     return std::shared_ptr<async_message>(new async_message());
 }
 
-std::shared_ptr<async_message> async_message::create(const std::string& message)
+std::shared_ptr<async_message> async_message::make_shared(const std::string& message)
 {
     return std::shared_ptr<async_message>(new async_message(message));
 }

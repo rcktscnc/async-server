@@ -35,18 +35,32 @@ void command::execute(const std::string& input)
        broadcast(token[1]);
     if (token[0] == "clients")
         _server._clients.list_connections();
+    if (token[0] == "ping")
+        ping(token[1]);
 }
 
 void command::broadcast(const std::string& message)
 {
-    _server._clients.broadcast(async_message::create(message));
+    _server._clients.broadcast(async_message::make_shared(message));
 }
 
 void command::send(const std::string& message, const std::string& client_id)
 {
     try
     {
-        _server._clients.send(async_message::create(message), std::stoul(client_id));
+        _server._clients.send(async_message::make_shared(message), std::stoul(client_id));
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "error: invalid argument." << std::endl;
+    }
+}
+
+void command::ping(const std::string& client_id)
+{
+    try
+    {
+        _server._clients.ping(std::stoul(client_id));
     }
     catch (std::exception& e)
     {

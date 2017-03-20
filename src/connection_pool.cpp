@@ -5,7 +5,7 @@ connection_pool::connection_pool(asio::io_service& io_service) : _container_stra
 {
 }
 
-void connection_pool::add(connection::ptr&& connection)
+void connection_pool::add(connection::shared_ptr&& connection)
 {
     _container_strand.post([this, connection]()
     {
@@ -14,7 +14,7 @@ void connection_pool::add(connection::ptr&& connection)
     });
 }
 
-void connection_pool::remove(const connection::ptr& connection)
+void connection_pool::remove(const connection::shared_ptr& connection)
 {
     _container_strand.post([this, connection]()
     {
@@ -57,5 +57,15 @@ void connection_pool::list_connections()
     {
         for (auto connection : _connections)
             std::cout << "client: " << connection.first << " | " << connection.second->remote_address() << "\n";
+    });
+}
+
+void connection_pool::ping(std::size_t connection_id)
+{
+    send(async_message::make_shared("ping"), connection_id); // return reference to the used connection would be helpful to start receiving data
+    receive(connection_id, [](const async_message::shared_ptr& async_message)
+    {
+        std::cout << "Ping received: ";
+        std::cout.write(async_message->body(), async_message->body_length());
     });
 }

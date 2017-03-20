@@ -13,6 +13,7 @@ public:
     void execute(const std::string& input);
     void broadcast(const std::string& message);
     void send(const std::string& message, const std::string& client_id);
+    void ping(const std::string& client_id);
 
 private:
     server& _server;

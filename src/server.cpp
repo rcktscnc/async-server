@@ -22,7 +22,7 @@ void server::start_accept()
     _acceptor.async_accept(_socket, [this](const asio::error_code& err)
     {
         if (!err)
-            connection::create(_io_service, std::move(_socket), _clients)->start();
+            connection::make_shared(_io_service, std::move(_socket), _clients)->start();
         
         start_accept();
     });
