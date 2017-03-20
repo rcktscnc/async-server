@@ -51,6 +51,20 @@ void connection_pool::send(const async_message::shared_ptr& message, std::size_t
     });
 }
 
+void connection_pool::receive(std::size_t connection_id, std::function<bool(const async_message::shared_ptr&)> handle)
+{
+    _container_strand.post([this, connection_id, handle]()
+    {
+        auto iterator = std::find_if(_connections.begin(), _connections.end(),
+            [connection_id](const _pair_t& e) { return e.first == connection_id; });
+        
+        if (iterator != _connections.end())
+            iterator->second->receive(handle);
+        else
+            std::cout << "error: client not found\n";
+    });
+}
+
 void connection_pool::list_connections()
 {
     _container_strand.post([this]()
@@ -62,10 +76,21 @@ void connection_pool::list_connections()
 
 void connection_pool::ping(std::size_t connection_id)
 {
-    send(async_message::make_shared("ping"), connection_id); // return reference to the used connection would be helpful to start receiving data
-    receive(connection_id, [](const async_message::shared_ptr& async_message)
+    send(async_message::make_shared("ping"), connection_id);
+    receive(connection_id, [](const async_message::shared_ptr& async_message) -> bool
     {
+        static std::size_t counter = 0;
         std::cout << "Ping received: ";
         std::cout.write(async_message->body(), async_message->body_length());
+        if (counter < 1)
+        {
+            ++counter;
+            return true;
+        }
+        else
+        {
+            counter = 0;
+            return false;
+        }
     });
 }

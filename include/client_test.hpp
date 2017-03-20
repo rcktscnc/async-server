@@ -7,7 +7,8 @@ using namespace asio::ip;
 
 void ping(tcp::socket& socket)
 {
-     async_message::shared_ptr async_message = async_message::make_shared("PING RECEIVED!");
+     async_message::shared_ptr async_message = async_message::make_shared("PONG RECEIVED!");
+     asio::write(socket, asio::buffer(async_message->data(), async_message->length()));
      asio::write(socket, asio::buffer(async_message->data(), async_message->length()));
 }
 
