@@ -95,3 +95,15 @@ void connection_pool::ping(std::size_t connection_id)
         });
     });
 }
+
+void connection_pool::get_file(std::size_t connection_id, const std::string& file_name)
+{
+    send(async_message::make_shared("getfile", _output_strand), connection_id);
+    receive(connection_id, 1, [this, connection_id](const async_message::shared_ptr& async_message)
+    {
+        receive(connection_id, 99/*async_message->body()*/, [this](const async_message::shared_ptr& async_message)
+        {
+            // write to disk
+        });
+    });
+}

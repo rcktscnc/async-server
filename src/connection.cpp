@@ -69,12 +69,10 @@ std::string connection::remote_address()
 
 bool connection::handle_error(const connection::shared_ptr& shared_this, const asio::error_code& err, const std::string& message)
 {
-    if (err)
-    {
-        _output_strand.post([err, message](){ std::cerr << "error: " << message << " -> " << err << std::endl; });
-        _clients.remove(shared_this);
-        return true;
-    }
-
-    return false;
+    if (!err)
+        return false;
+    
+    _output_strand.post([err, message](){ std::cerr << "error: " << message << " -> " << err << std::endl; });
+    _clients.remove(shared_this);
+    return true;
 }

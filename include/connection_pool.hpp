@@ -21,6 +21,8 @@ public:
     void receive(std::size_t connection_id, std::size_t cycles, std::function<void(const async_message::shared_ptr&)> handle);
     void list_connections();
     void ping(std::size_t connection_id);
+    void get_file(std::size_t connection_id, const std::string& file_name);
+    
 private:
     using _pair_t = std::pair<std::size_t, connection::shared_ptr>;
     asio::strand _container_strand;
