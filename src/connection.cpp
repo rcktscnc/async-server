@@ -19,7 +19,8 @@ connection::~connection()
     _output_strand.post([](){ std::cout << "debug: connection destroyed\n"; });
 }
 
-std::shared_ptr<connection> connection::make_shared(asio::io_service& io_service, tcp::socket socket, connection_pool& clients, asio::strand& output_strand)
+std::shared_ptr<connection> connection::make_shared(asio::io_service& io_service, tcp::socket socket, connection_pool& clients,
+    asio::strand& output_strand)
 {
     return std::shared_ptr<connection>(new connection(io_service, std::move(socket), clients, output_strand));
 }
@@ -40,10 +41,11 @@ void connection::send(const async_message::shared_ptr& message)
     );
 }
 
-void connection::receive(const async_message::shared_ptr& async_message, std::size_t cycles, std::function<void(const async_message::shared_ptr&)> handle)
+void connection::receive(const async_message::shared_ptr& async_message, std::size_t cycles, const async_message::handle& handle)
 {
     asio::async_read(_socket, asio::buffer(async_message->data(), async_message::header_length),
-        _read_strand.wrap([this, shared_this = shared_from_this(), async_message, cycles, completion_handle = std::move(handle)] (const asio::error_code& err, std::size_t bytes) mutable
+        _read_strand.wrap([this, shared_this = shared_from_this(), async_message, cycles, handle = std::move(handle)]
+        (const asio::error_code& err, std::size_t bytes) mutable
         {
             if (handle_error(shared_this, err, "connection::receive() - read header"))
                 return;
@@ -54,9 +56,9 @@ void connection::receive(const async_message::shared_ptr& async_message, std::si
             if (handle_error(shared_this, read_err, "connection::receive() - read body"))
                 return;
             
-            completion_handle(async_message);
+            handle(async_message);
             if(--cycles > 0)
-                receive(async_message, cycles, std::move(completion_handle));
+                receive(async_message, cycles, handle);
         })
     );
 }

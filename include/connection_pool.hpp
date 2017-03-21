@@ -6,9 +6,6 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <functional>
-
-#include <iostream> // REMOVE THIS LATER
 
 class connection_pool
 {
@@ -18,7 +15,7 @@ public:
     void remove(const connection::shared_ptr& connection);
     void broadcast(const async_message::shared_ptr& message);
     void send(const async_message::shared_ptr& message, std::size_t connection_id);
-    void receive(std::size_t connection_id, std::size_t cycles, std::function<void(const async_message::shared_ptr&)> handle);
+    void receive(std::size_t connection_id, std::size_t cycles, const async_message::handle& handle);
     void list_connections();
     void ping(std::size_t connection_id);
     void get_file(std::size_t connection_id, const std::string& file_name);

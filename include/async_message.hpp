@@ -3,12 +3,14 @@
 
 #include <standalone_asio.hpp>
 #include <memory>
+#include <functional>
 #include <string>
 
 class async_message
 {
 public:
     using shared_ptr = std::shared_ptr<async_message>;
+    using handle = std::function<void(const async_message::shared_ptr&)>;
     enum { header_length = 4 };
     enum { max_body_length = 512 };
 
