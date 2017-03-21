@@ -13,7 +13,7 @@
 class connection_pool
 {
 public:
-    connection_pool(asio::io_service& io_service);
+    connection_pool(asio::io_service& io_service, asio::strand& output_strand);
     void add(connection::shared_ptr&& connection);
     void remove(const connection::shared_ptr& connection);
     void broadcast(const async_message::shared_ptr& message);
@@ -24,6 +24,7 @@ public:
 private:
     using _pair_t = std::pair<std::size_t, connection::shared_ptr>;
     asio::strand _container_strand;
+    asio::strand& _output_strand;
     std::vector<_pair_t> _connections;
     std::size_t _connection_id = 0;
 };

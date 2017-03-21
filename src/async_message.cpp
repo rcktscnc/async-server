@@ -4,11 +4,11 @@
 #include <cstdlib>
 #include <cstring>
 
-async_message::async_message()
+async_message::async_message(asio::strand& output_strand) : _output_strand(output_strand)
 {
 }
 
-async_message::async_message(const std::string& message)
+async_message::async_message(const std::string& message, asio::strand& output_strand) : _output_strand(output_strand)
 {
     set_body_length(message.length());
     std::memcpy(body(), message.c_str(), body_length());
@@ -17,17 +17,17 @@ async_message::async_message(const std::string& message)
 
 async_message::~async_message()
 {
-    std::cout << "debug: message destroyed\n";
+    _output_strand.post([]() { std::cout << "debug: message destroyed\n"; });
 }
 
-std::shared_ptr<async_message> async_message::make_shared()
+std::shared_ptr<async_message> async_message::make_shared(asio::strand& output_strand)
 {
-    return std::shared_ptr<async_message>(new async_message());
+    return std::shared_ptr<async_message>(new async_message(output_strand));
 }
 
-std::shared_ptr<async_message> async_message::make_shared(const std::string& message)
+std::shared_ptr<async_message> async_message::make_shared(const std::string& message, asio::strand& output_strand)
 {
-    return std::shared_ptr<async_message>(new async_message(message));
+    return std::shared_ptr<async_message>(new async_message(message, output_strand));
 }
 
 char* async_message::data()
@@ -61,7 +61,7 @@ void async_message::set_body_length(std::size_t new_length)
     if (_body_length > max_body_length)
     {
         _body_length = max_body_length;
-        std::cerr << "error: set_body_length() invalid argument" << std::endl;
+        _output_strand.post([]() { std::cerr << "error: set_body_length() invalid argument" << std::endl; });
     }
 }
 

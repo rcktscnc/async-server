@@ -1,6 +1,7 @@
 #ifndef __ASYNC_MESSAGE_HPP__
 #define __ASYNC_MESSAGE_HPP__
 
+#include <standalone_asio.hpp>
 #include <memory>
 #include <string>
 
@@ -11,8 +12,8 @@ public:
     enum { header_length = 4 };
     enum { max_body_length = 512 };
 
-    static std::shared_ptr<async_message> make_shared();
-    static std::shared_ptr<async_message> make_shared(const std::string& message);
+    static std::shared_ptr<async_message> make_shared(asio::strand& output_strand);
+    static std::shared_ptr<async_message> make_shared(const std::string& message, asio::strand& output_strand);
     ~async_message();
     char* data();
     const char* data() const;
@@ -25,11 +26,12 @@ public:
     bool decode_header();
 
 private:
+    asio::strand& _output_strand;
     char _data[header_length + max_body_length];
     std::size_t _body_length = 0;
 
-    async_message();
-    async_message(const std::string& message);
+    async_message(asio::strand& output_strand);
+    async_message(const std::string& message, asio::strand& output_strand);
 };
 
 #endif // __ASYNC_MESSAGE_HPP__

@@ -41,18 +41,18 @@ void command::execute(const std::string& input)
 
 void command::broadcast(const std::string& message)
 {
-    _server._clients.broadcast(async_message::make_shared(message));
+    _server._clients.broadcast(async_message::make_shared(message, _server._output_strand));
 }
 
 void command::send(const std::string& message, const std::string& client_id)
 {
     try
     {
-        _server._clients.send(async_message::make_shared(message), std::stoul(client_id));
+        _server._clients.send(async_message::make_shared(message, _server._output_strand), std::stoul(client_id));
     }
     catch (std::exception& e)
     {
-        std::cerr << "error: invalid argument." << std::endl;
+        _server._output_strand.post([]() { std::cerr << "error: invalid argument." << std::endl; });
     }
 }
 
@@ -64,6 +64,6 @@ void command::ping(const std::string& client_id)
     }
     catch (std::exception& e)
     {
-        std::cerr << "error: invalid argument." << std::endl;
+        _server._output_strand.post([]() { std::cerr << "error: invalid argument." << std::endl; });   
     }
 }

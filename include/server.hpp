@@ -15,6 +15,7 @@ private:
     asio::io_service& _io_service;
     asio::ip::tcp::socket _socket;
     asio::ip::tcp::acceptor _acceptor;
+    asio::strand _output_strand;
     connection_pool _clients;
     command _command;
 

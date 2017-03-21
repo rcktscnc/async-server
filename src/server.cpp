@@ -10,7 +10,8 @@ server::server(asio::io_service& io_service, uint16_t port)
     : _io_service(io_service),
     _socket(io_service),
     _acceptor(io_service, tcp::endpoint(tcp::v4(), port)),
-    _clients(io_service),
+    _output_strand(io_service),
+    _clients(io_service, _output_strand),
     _command(*this)
 {
     start_accept();
@@ -22,7 +23,7 @@ void server::start_accept()
     _acceptor.async_accept(_socket, [this](const asio::error_code& err)
     {
         if (!err)
-            connection::make_shared(_io_service, std::move(_socket), _clients)->start();
+            connection::make_shared(_io_service, std::move(_socket), _clients, _output_strand)->start();
         
         start_accept();
     });
