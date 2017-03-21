@@ -2,8 +2,28 @@
 #include <async_message.hpp>
 #include <iostream>
 #include <cstring>
+#include <fstream>
+
 
 using namespace asio::ip;
+
+void get_file(tcp::socket& socket, asio::strand& output_strand)
+{
+    std::fstream file("example.txt", std::ios::in | std::ios::binary);
+    async_message::shared_ptr async_message = async_message::make_shared("1234", output_strand);
+    int asd = 1926;
+    std::memcpy(async_message->body(), &asd, async_message::file_size_length);
+    async_message->set_body_length(async_message::file_size_length);
+    async_message->encode_header();
+    asio::write(socket, asio::buffer(async_message->data(), async_message->length()));
+    while (std::size_t bytes_read = file.readsome(async_message->body(), async_message::max_body_length))
+    {
+        async_message->set_body_length(bytes_read);
+        async_message->encode_header();
+        asio::write(socket, asio::buffer(async_message->data(), async_message->length()));
+        std::cout << "loop";
+    }
+}
 
 void ping(tcp::socket& socket, asio::strand& output_strand)
 {
@@ -19,6 +39,8 @@ void read_message(tcp::socket& socket, async_message::shared_ptr& async_message,
     asio::read(socket, asio::buffer(async_message->body(), async_message->body_length()));
     if (!std::memcmp(async_message->body(), "ping", 4))
         ping(socket, output_strand);
+    if (!std::memcmp(async_message->body(), "getfile", 7))
+        get_file(socket, output_strand);
 }
 
 void client()

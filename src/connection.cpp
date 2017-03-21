@@ -46,8 +46,8 @@ void connection::receive(const async_message::shared_ptr& async_message, std::si
     asio::async_read(_socket, asio::buffer(async_message->data(), async_message::header_length),
         _read_strand.wrap([this, shared_this = shared_from_this(), async_message, cycles, handle = std::move(handle)]
         (const asio::error_code& err, std::size_t bytes) mutable
-        {
-            if (handle_error(shared_this, err, "connection::receive() - read header"))
+        {  
+            if (handle_error(shared_this, err, "connection::receive() - read header") || cycles == 0)
                 return;
             
             async_message->decode_header();

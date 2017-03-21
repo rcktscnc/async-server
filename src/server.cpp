@@ -12,7 +12,7 @@ server::server(asio::io_service& io_service, uint16_t port)
     _acceptor(io_service, tcp::endpoint(tcp::v4(), port)),
     _output_strand(io_service),
     _clients(io_service, _output_strand),
-    _command(*this)
+    _command(_clients, _output_strand)
 {
     start_accept();
     read_input();

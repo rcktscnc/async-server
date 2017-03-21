@@ -1,5 +1,4 @@
 #include <command.hpp>
-#include <server.hpp>
 #include <iostream>
 
 static std::vector<std::string> split_string(const std::string& s, char seperator)
@@ -19,7 +18,8 @@ static std::vector<std::string> split_string(const std::string& s, char seperato
     return output;
 }
 
-command::command(server& server) : _server(server)
+command::command(connection_pool& clients, asio::strand& output_strand)
+    : _clients(clients), _output_strand(output_strand)
 {
 }
 
@@ -34,25 +34,27 @@ void command::execute(const std::string& input)
     if (token[0] == "broadcast" && token.size() == 2)
        broadcast(token[1]);
     if (token[0] == "clients")
-        _server._clients.list_connections();
+        _clients.list_connections();
     if (token[0] == "ping")
         ping(token[1]);
+    if (token[0] == "getfile")
+        get_file(token[1]);
 }
 
 void command::broadcast(const std::string& message)
 {
-    _server._clients.broadcast(async_message::make_shared(message, _server._output_strand));
+    _clients.broadcast(async_message::make_shared(message, _output_strand));
 }
 
 void command::send(const std::string& message, const std::string& client_id)
 {
     try
     {
-        _server._clients.send(async_message::make_shared(message, _server._output_strand), std::stoul(client_id));
+        _clients.send(async_message::make_shared(message, _output_strand), std::stoul(client_id));
     }
     catch (std::exception& e)
     {
-        _server._output_strand.post([]() { std::cerr << "error: invalid argument." << std::endl; });
+        _output_strand.post([]() { std::cerr << "error: invalid argument." << std::endl; });
     }
 }
 
@@ -60,10 +62,22 @@ void command::ping(const std::string& client_id)
 {
     try
     {
-        _server._clients.ping(std::stoul(client_id));
+        _clients.ping(std::stoul(client_id));
     }
     catch (std::exception& e)
     {
-        _server._output_strand.post([]() { std::cerr << "error: invalid argument." << std::endl; });   
+        _output_strand.post([]() { std::cerr << "error: invalid argument." << std::endl; });   
+    }
+}
+
+void command::get_file(const std::string& client_id)
+{
+    try
+    {
+        _clients.get_file(std::stoul(client_id), "place_holder");
+    }
+    catch (std::exception& e)
+    {
+        _output_strand.post([]() { std::cerr << "error: invalid argument." << std::endl; });   
     }
 }
