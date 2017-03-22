@@ -11,14 +11,16 @@ class command
 public:
     command(connection_pool& clients, asio::strand& output_strand);
     void execute(const std::string& input);
-    void broadcast(const std::string& message);
-    void send(const std::string& message, const std::string& client_id);
-    void ping(const std::string& client_id);
-    void get_file(const std::string& client_id);
+    void ping(std::size_t connection_id);
+    void get_file(std::size_t connection_id, const std::string& file_name);
+    std::size_t get_cycles(const async_message::shared_ptr& async_message);
 
 private:
     connection_pool& _clients;
     asio::strand& _output_strand;
+
+    std::vector<std::string> split_string(const std::string& s, char seperator);
+    std::size_t string_to_size_t(const std::string& client_id);
 };
 
 #endif

@@ -63,7 +63,7 @@ void connection_pool::receive(std::size_t connection_id, std::size_t cycles, con
             [connection_id](const _pair_t& e) { return e.first == connection_id; });
         
         if (iterator != _connections.end())
-            iterator->second->receive(async_message::make_shared(_output_strand), cycles, handle);
+            iterator->second->receive(cycles, handle);
         else
             _output_strand.post([](){ std::cout << "error: connection_pool::receive() - client not found\n"; });
     });
@@ -81,50 +81,4 @@ void connection_pool::list_connections()
             });
         }
     });
-}
-
-void connection_pool::ping(std::size_t connection_id)
-{
-    send(async_message::make_shared("ping", _output_strand), connection_id);
-    receive(connection_id, 2, [this](const async_message::shared_ptr& async_message)
-    {
-        _output_strand.post([async_message]()
-        {
-            std::cout.write(async_message->body(), async_message->body_length());
-            std::cout << "\n";
-        });
-    });
-}
-
-void connection_pool::get_file(std::size_t connection_id, const std::string& file_name)
-{
-    send(async_message::make_shared("getfile", _output_strand), connection_id);
-    receive(connection_id, 1, [this, connection_id](const async_message::shared_ptr& async_message)
-    {
-        receive(connection_id, get_cycles(async_message), [this](const async_message::shared_ptr& async_message)
-        {
-            // write to disk
-             /*_output_strand.post([async_message]()
-            {*/
-                std::cout.write(async_message->body(), async_message->body_length());
-                std::cout << "\n";
-            /*});*/
-        });
-    });
-}
-
-std::size_t connection_pool::get_cycles(const async_message::shared_ptr& async_message)
-{
-    std::size_t file_size;
-    std::memcpy(&file_size, async_message->body(), async_message::file_size_length);
-    std::size_t cycles = file_size / async_message::max_body_length;
-    if (file_size % async_message::max_body_length != 0)
-        ++cycles;
-    
-    _output_strand.post([cycles]()
-    {
-        std::cout << "CYCLES: " << cycles << "\n";
-    });
-
-    return cycles;
 }
