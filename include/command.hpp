@@ -13,6 +13,7 @@ public:
     void execute(const std::string& input);
     void ping(std::size_t connection_id);
     void get_file(std::size_t connection_id, const std::string& file_name);
+    std::size_t check_error(const async_message::shared_ptr& async_message);
     std::size_t get_cycles(const async_message::shared_ptr& async_message);
 
 private:

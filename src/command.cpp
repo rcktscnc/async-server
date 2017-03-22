@@ -44,6 +44,9 @@ void command::get_file(std::size_t connection_id, const std::string& file_name)
     _clients.send(async_message::make_shared(file_name, _output_strand), connection_id);
     _clients.receive(connection_id, 1, [this, connection_id](const async_message::shared_ptr& async_message)
     {
+        if (check_error(async_message))
+            return;
+        
         _clients.receive(connection_id, get_cycles(async_message), [this](const async_message::shared_ptr& async_message)
         {
             // should write to disk instead
@@ -52,15 +55,22 @@ void command::get_file(std::size_t connection_id, const std::string& file_name)
     });
 }
 
+std::size_t command::check_error(const async_message::shared_ptr& async_message)
+{
+    std::uint32_t error_code;
+    std::memcpy(&error_code, async_message->body(), sizeof(std::uint32_t));
+    error_code = asio::detail::socket_ops::network_to_host_long(error_code);
+    _output_strand.post([error_code]() { std::cout << "remote error_code: " << error_code << "\n"; });
+
+    return error_code;
+}
+
 std::size_t command::get_cycles(const async_message::shared_ptr& async_message)
 {
-    using asio::detail::socket_ops::network_to_host_long;
-
-    uint32_t file_size;
-    std::memcpy(&file_size, async_message->body(), async_message->body_length());
-    file_size = network_to_host_long(file_size);
+    std::uint32_t file_size;
+    std::memcpy(&file_size, async_message->body() + sizeof(std::uint32_t), sizeof(std::uint32_t));
+    file_size = asio::detail::socket_ops::network_to_host_long(file_size);
     std::size_t cycles = file_size / async_message::max_body_length;
-    
     if (file_size % async_message::max_body_length != 0)
         ++cycles;
     

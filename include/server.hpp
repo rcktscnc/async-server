@@ -9,7 +9,7 @@ class server
 {
     friend class command;
 public:
-    server(asio::io_service& io_service, uint16_t port);
+    server(asio::io_service& io_service, std::uint16_t port);
     
 private:
     asio::io_service& _io_service;

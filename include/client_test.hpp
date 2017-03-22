@@ -30,22 +30,33 @@ async_message::shared_ptr read_message(tcp::socket& socket, asio::strand& output
 void get_file(tcp::socket& socket, asio::strand& output_strand)
 {
     using asio::detail::socket_ops::host_to_network_long;
+
     auto file_name_message = read_message(socket, output_strand);
     std::string file_name(file_name_message->body(), file_name_message->body() + file_name_message->body_length());
     std::fstream file(file_name, std::ios::in | std::ios::binary);
-    uint32_t file_size = get_file_size(file_name);
+    std::uint32_t file_size = get_file_size(file_name);
+    std::uint32_t error_code = 0;
+    bool skip_send = false;
     if (!file.is_open())
     {
         std::cout << "Can't find file\n";
+        error_code = 1;
         file_size = 0;
-        return;
+        skip_send = true;
     }
+    error_code = host_to_network_long(error_code);
     file_size = host_to_network_long(file_size);
     async_message::shared_ptr async_message = async_message::make_shared(output_strand);
-    std::memcpy(async_message->body(), &file_size, sizeof(uint32_t));
-    async_message->set_body_length(sizeof(uint32_t));
+    std::memcpy(async_message->body(), &error_code, sizeof(std::uint32_t));
+    std::memcpy(async_message->body() + sizeof(std::uint32_t), &file_size, sizeof(std::uint32_t));
+    async_message->set_body_length(sizeof(std::uint32_t) * 2);
     async_message->encode_header();
     asio::write(socket, asio::buffer(async_message->data(), async_message->length()));
+    if (skip_send)
+    {
+        return;
+    }
+        
     while (std::size_t bytes_read = file.readsome(async_message->body(), async_message::max_body_length))
     {
         async_message->set_body_length(bytes_read);
