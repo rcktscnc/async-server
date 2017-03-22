@@ -21,8 +21,8 @@ void command::execute(const std::string& input)
         _clients.list_connections();
     if (token[0] == "ping")
         ping(string_to_size_t(token[1]));
-    if (token[0] == "getfile")
-        get_file(string_to_size_t(token[1]), "place_holder");
+    if (token[0] == "getfile" && token.size() == 3)
+        get_file(string_to_size_t(token[1]), token[2]);
 }
 
 void command::ping(std::size_t connection_id)
@@ -41,6 +41,7 @@ void command::ping(std::size_t connection_id)
 void command::get_file(std::size_t connection_id, const std::string& file_name)
 {
     _clients.send(async_message::make_shared("getfile", _output_strand), connection_id);
+    _clients.send(async_message::make_shared(file_name, _output_strand), connection_id);
     _clients.receive(connection_id, 1, [this, connection_id](const async_message::shared_ptr& async_message)
     {
         _clients.receive(connection_id, get_cycles(async_message), [this](const async_message::shared_ptr& async_message)
@@ -53,8 +54,11 @@ void command::get_file(std::size_t connection_id, const std::string& file_name)
 
 std::size_t command::get_cycles(const async_message::shared_ptr& async_message)
 {
-    std::size_t file_size;
-    std::memcpy(&file_size, async_message->body(), async_message::file_size_length);
+    using asio::detail::socket_ops::network_to_host_long;
+
+    uint32_t file_size;
+    std::memcpy(&file_size, async_message->body(), async_message->body_length());
+    file_size = network_to_host_long(file_size);
     std::size_t cycles = file_size / async_message::max_body_length;
     
     if (file_size % async_message::max_body_length != 0)

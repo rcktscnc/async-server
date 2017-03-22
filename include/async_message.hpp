@@ -13,7 +13,6 @@ public:
     using handle = std::function<void(const async_message::shared_ptr&)>;
     enum { header_length = 4 };
     enum { max_body_length = 512 };
-    enum { file_size_length = 4 };
 
     static std::shared_ptr<async_message> make_shared(asio::strand& output_strand);
     static std::shared_ptr<async_message> make_shared(const std::string& message, asio::strand& output_strand);

@@ -57,6 +57,9 @@ void connection_pool::send(const async_message::shared_ptr& message, std::size_t
 
 void connection_pool::receive(std::size_t connection_id, std::size_t cycles, const async_message::handle& handle)
 {
+    if (cycles == 0)
+        return;
+    
     _container_strand.post([this, connection_id, cycles, handle = std::move(handle)]()
     {
         auto iterator = std::find_if(_connections.begin(), _connections.end(),
