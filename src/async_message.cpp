@@ -50,12 +50,12 @@ const char* async_message::body() const
     return _data + header_length;
 }
 
-std::size_t async_message::length() const
+async_message::header_t async_message::length() const
 {
     return header_length + _body_length;
 }
 
-void async_message::set_body_length(std::size_t new_length)
+void async_message::set_body_length(header_t new_length)
 {
     _body_length = new_length;
     if (_body_length > max_body_length)
@@ -65,23 +65,22 @@ void async_message::set_body_length(std::size_t new_length)
     }
 }
 
-std::size_t async_message::body_length() const
+async_message::header_t async_message::body_length() const
 {
     return _body_length;
 }
 
 void async_message::encode_header()
 {
-    char header[header_length + 1] = "";
-    std::sprintf(header, "%04d", static_cast<int>(_body_length));
-    std::memcpy(_data, header, header_length);
+    header_t encoded = asio::detail::socket_ops::host_to_network_long(_body_length);
+    std::memcpy(_data, &encoded, header_length);
 }
 
 bool async_message::decode_header()
 {
-    char header[header_length + 1] = "";
-    std::strncat(header, _data, header_length);
-    _body_length = std::atoi(header);
+    header_t encoded;
+    std::memcpy(&encoded, _data, header_length);
+    _body_length = asio::detail::socket_ops::network_to_host_long(encoded);
     if (_body_length > max_body_length)
     {
         _body_length = 0;
