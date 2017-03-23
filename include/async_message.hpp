@@ -6,7 +6,7 @@
 #include <functional>
 #include <string>
 
-class async_message
+class async_message // change this to async_buffer
 {
 public:
     using shared_ptr = std::shared_ptr<async_message>;

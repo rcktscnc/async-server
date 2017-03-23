@@ -4,7 +4,7 @@
 #include <standalone_asio.hpp>
 #include <connection_pool.hpp>
 #include <async_message.hpp>
-#include <request_info.hpp>
+#include <request.hpp>
 #include <string>
 
 class command
@@ -21,8 +21,8 @@ private:
 
     std::vector<std::string> split_string(const std::string& s, char seperator);
     std::size_t string_to_size_t(const std::string& client_id);
-    std::size_t error(request_info::member_t error_code);
-    std::size_t cycles(request_info::member_t file_size);
+    std::size_t error(request::member_t error_code);
+    std::size_t cycles(request::member_t file_size);
 };
 
 #endif
