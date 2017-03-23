@@ -8,6 +8,6 @@
 #define ASIO_STANDALONE
 
 #include <thread>
-#include <asio.hpp>
+#include <third_party/asio.hpp>
 
 #endif // __STANDALONE_ASIO_HPP__

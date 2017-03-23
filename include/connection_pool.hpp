@@ -15,7 +15,7 @@ public:
     void remove(const connection::shared_ptr& connection);
     void broadcast(const async_message::shared_ptr& message);
     void send(const async_message::shared_ptr& message, std::size_t connection_id);
-    void receive(std::size_t connection_id, std::size_t cycles, const async_message::handle& handle);
+    void receive(std::size_t connection_id, std::size_t cycles, bool reuse_buffer, const async_message::handle& handle);
     void list_connections();
     
 private:

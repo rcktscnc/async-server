@@ -1,6 +1,5 @@
 .vscode/
 obj/
-include/asio/
-include/asio.hpp
+include/third_party/
 
 *.exe

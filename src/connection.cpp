@@ -41,13 +41,13 @@ void connection::send(const async_message::shared_ptr& message)
     );
 }
 
-void connection::receive(std::size_t cycles, const async_message::handle& handle)
+void connection::receive(const async_message::shared_ptr& async_message, std::size_t cycles, bool reuse_buffer,
+    const async_message::handle& handle)
 {
-    async_message::shared_ptr async_message = async_message::make_shared(_output_strand);
     asio::async_read(_socket, asio::buffer(async_message->data(), async_message::header_length),
-        _read_strand.wrap([this, shared_this = shared_from_this(), async_message, cycles, handle = std::move(handle)]
+        _read_strand.wrap([this, shared_this = shared_from_this(), async_message, cycles, reuse_buffer, handle = std::move(handle)]
         (const asio::error_code& err, std::size_t bytes) mutable
-        {  
+        {
             if (handle_error(shared_this, err, "connection::receive() - read header") || cycles == 0)
                 return;
             
@@ -59,7 +59,12 @@ void connection::receive(std::size_t cycles, const async_message::handle& handle
             
             handle(async_message);
             if(--cycles > 0)
-                receive(cycles, handle);
+            {
+                if (reuse_buffer)
+                    receive(async_message, cycles, reuse_buffer, handle);
+                else
+                    receive(async_message::make_shared(_output_strand), cycles, reuse_buffer, handle);
+            }
         })
     );
 }

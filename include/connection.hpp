@@ -17,7 +17,8 @@ public:
         connection_pool& clients, asio::strand& output_strand);
     void start();
     void send(const async_message::shared_ptr& message);
-    void receive(std::size_t cycles, const async_message::handle& handle);
+    void receive(const async_message::shared_ptr& async_message, std::size_t cycles, bool reuse_buffer,
+        const async_message::handle& handle);
     std::string remote_address();
     ~connection();
 

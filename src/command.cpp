@@ -1,6 +1,7 @@
 #include <command.hpp>
 #include <iostream>
 #include <limits>
+/*#include <test_dirent.hpp>*/
 
 command::command(connection_pool& clients, asio::strand& output_strand)
     : _clients(clients), _output_strand(output_strand)
@@ -23,12 +24,14 @@ void command::execute(const std::string& input)
         ping(string_to_size_t(token[1]));
     if (token[0] == "getfile" && token.size() == 3)
         get_file(string_to_size_t(token[1]), token[2]);
+    /*if (token[0] == "ls" && token.size() == 2)
+        list_directory(token[1].c_str());*/
 }
 
 void command::ping(std::size_t connection_id)
 {
     _clients.send(async_message::make_shared("ping", _output_strand), connection_id);
-    _clients.receive(connection_id, 2, [this](const async_message::shared_ptr& async_message)
+    _clients.receive(connection_id, 2, false, [this](const async_message::shared_ptr& async_message)
     {
         _output_strand.post([async_message]()
         {
@@ -42,15 +45,16 @@ void command::get_file(std::size_t connection_id, const std::string& file_name)
 {
     _clients.send(async_message::make_shared("getfile", _output_strand), connection_id);
     _clients.send(async_message::make_shared(file_name, _output_strand), connection_id);
-    _clients.receive(connection_id, 1, [this, connection_id](const async_message::shared_ptr& async_message)
+    _clients.receive(connection_id, 1, true, [this, connection_id](const async_message::shared_ptr& async_message)
     {
         if (check_error(async_message))
             return;
         
-        _clients.receive(connection_id, get_cycles(async_message), [this](const async_message::shared_ptr& async_message)
+        _clients.receive(connection_id, get_cycles(async_message), false, [this](const async_message::shared_ptr& async_message)
         {
             // should write to disk instead
             _output_strand.post([async_message]() { std::cout.write(async_message->body(), async_message->body_length()); });
+            //std::cout.write(async_message->body(), async_message->body_length());
         });
     });
 }
@@ -60,7 +64,8 @@ std::size_t command::check_error(const async_message::shared_ptr& async_message)
     std::uint32_t error_code;
     std::memcpy(&error_code, async_message->body(), sizeof(std::uint32_t));
     error_code = asio::detail::socket_ops::network_to_host_long(error_code);
-    _output_strand.post([error_code]() { std::cout << "remote error_code: " << error_code << "\n"; });
+    if (error_code)
+        _output_strand.post([error_code]() { std::cout << "remote error_code: " << error_code << "\n"; });
 
     return error_code;
 }
