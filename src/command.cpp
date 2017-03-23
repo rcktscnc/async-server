@@ -44,25 +44,26 @@ void command::ping(std::size_t connection_id)
 
 void command::get_file(std::size_t connection_id, const std::string& file_name)
 {
+    // this should be only one send() with a request_info asking for a file. FIX IT
     _clients.send(async_message::make_shared("getfile", _output_strand), connection_id);
     _clients.send(async_message::make_shared(file_name, _output_strand), connection_id);
     _clients.receive(connection_id, 1, false, [this, connection_id](const async_message::shared_ptr& async_message)
     {
-        request_info req_info(async_message);
-        req_info.network_to_host();
-        if (handle_error(req_info.error_code))
+        request_info request_info(async_message);
+        request_info.network_to_host();
+        if (error(request_info.error_code))
             return;
         
-        _clients.receive(connection_id, get_cycles(req_info.file_size), false, [this](const async_message::shared_ptr& async_message)
+        _clients.receive(connection_id, cycles(request_info.file_size), true, [this](const async_message::shared_ptr& async_message)
         {
             // should write to disk instead
-            _output_strand.post([async_message]() { std::cout.write(async_message->body(), async_message->body_length()); });
-            //std::cout.write(async_message->body(), async_message->body_length());
+            //_output_strand.post([async_message]() { std::cout.write(async_message->body(), async_message->body_length()); });
+            std::cout.write(async_message->body(), async_message->body_length());
         });
     });
 }
 
-std::size_t command::handle_error(request_info::member_t error_code)
+std::size_t command::error(request_info::member_t error_code)
 {
     if (error_code)
         _output_strand.post([error_code]() { std::cout << "remote error_code: " << error_code << "\n"; });
@@ -70,7 +71,7 @@ std::size_t command::handle_error(request_info::member_t error_code)
     return error_code;
 }
 
-std::size_t command::get_cycles(request_info::member_t file_size)
+std::size_t command::cycles(request_info::member_t file_size)
 {
     std::size_t cycles = file_size / async_message::max_body_length;
     if (file_size % async_message::max_body_length != 0)

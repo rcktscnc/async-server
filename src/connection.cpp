@@ -46,25 +46,25 @@ void connection::receive(const async_message::shared_ptr& async_message, std::si
 {
     asio::async_read(_socket, asio::buffer(async_message->data(), async_message::header_length),
         _read_strand.wrap([this, shared_this = shared_from_this(), async_message, cycles, reuse_buffer, handle = std::move(handle)]
-        (const asio::error_code& err, std::size_t bytes) mutable
+        (const asio::error_code& read_header_err, std::size_t bytes) mutable
         {
-            if (handle_error(shared_this, err, "connection::receive() - read header") || cycles == 0)
+            if (handle_error(shared_this, read_header_err, "connection::receive() - read header") || cycles == 0)
                 return;
             
             async_message->decode_header();
-            asio::error_code read_err;
-            asio::read(_socket, asio::buffer(async_message->body(), async_message->body_length()), read_err);
-            if (handle_error(shared_this, read_err, "connection::receive() - read body"))
+            asio::error_code read_body_err;
+            asio::read(_socket, asio::buffer(async_message->body(), async_message->body_length()), read_body_err);
+            if (handle_error(shared_this, read_body_err, "connection::receive() - read body"))
                 return;
             
             handle(async_message);
-            if(--cycles > 0)
-            {
-                if (reuse_buffer)
-                    receive(async_message, cycles, reuse_buffer, handle);
-                else
-                    receive(async_message::make_shared(_output_strand), cycles, reuse_buffer, handle);
-            }
+            if(--cycles == 0)
+                return;
+            
+            if (reuse_buffer)
+                receive(async_message, cycles, reuse_buffer, handle);
+            else
+                receive(async_message::make_shared(_output_strand), cycles, reuse_buffer, handle);
         })
     );
 }
@@ -82,5 +82,6 @@ bool connection::handle_error(const connection::shared_ptr& shared_this, const a
     
     _output_strand.post([err, message](){ std::cerr << "error: " << message << " -> " << err << std::endl; });
     _clients.remove(shared_this);
+
     return true;
 }
