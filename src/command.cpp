@@ -1,5 +1,6 @@
 #include <command.hpp>
 #include <file_receiver.hpp>
+#include <ping.hpp>
 #include <iostream>
 #include <limits>
 /*#include <test_dirent.hpp>*/
@@ -22,31 +23,9 @@ void command::execute(const std::string& input)
     if (token[0] == "clients")
         _clients.list_connections();
     if (token[0] == "ping")
-        ping(string_to_size_t(token[1]));
+        active_jobs.push_back(std::make_unique<ping>(_output_strand, _clients, string_to_size_t(token[1])));
     if (token[0] == "getfile" && token.size() == 3)
         active_jobs.push_back(std::make_unique<file_receiver>(_output_strand, _clients, string_to_size_t(token[1]), token[2]));
-    /*if (token[0] == "ls" && token.size() == 2)
-        list_directory(token[1].c_str());*/
-}
-
-void command::ping(std::size_t connection_id)
-{
-    request request(request::error_code::NONE, request::request_code::PING, 0);
-    request.host_to_network();
-    auto async_message = async_message::make_shared(_output_strand);
-    std::memcpy(async_message->body(), &request, sizeof(request));
-    async_message->set_body_length(sizeof(request));
-    async_message->encode_header();
-
-    _clients.send(async_message, connection_id);
-    _clients.receive(connection_id, 2, false, [this](const async_message::shared_ptr& async_message)
-    {
-        _output_strand.post([async_message]()
-        {
-            std::cout.write(async_message->body(), async_message->body_length());
-            std::cout << "\n";
-        });
-    });
 }
 
 std::vector<std::string> command::split_string(const std::string& s, char seperator)

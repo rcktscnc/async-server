@@ -19,9 +19,9 @@ private:
     std::fstream file;
     std::size_t cycles = 0;
 
-    void get_file(std::size_t connection_id, const std::string& file_name);
+    void start(std::size_t connection_id, const std::string& file_name);
     bool error(request::error_code error);
-    async_message::shared_ptr request_message(const std::string& file_name);
+    async_message::shared_ptr create_request_message(const std::string& file_name);
     std::size_t get_cycles(request::member_t size);
 };
 

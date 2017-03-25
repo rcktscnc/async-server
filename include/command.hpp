@@ -14,8 +14,6 @@ class command
 public:
     command(connection_pool& clients, asio::strand& output_strand);
     void execute(const std::string& input);
-    void ping(std::size_t connection_id);
-    void get_file(std::size_t connection_id, const std::string& file_name);
 
 private:
     connection_pool& _clients;

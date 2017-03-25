@@ -8,12 +8,12 @@ file_receiver::file_receiver(asio::strand& output_strand, connection_pool& clien
     _file_strand(output_strand.get_io_service()),
     _clients(clients)
 {
-    get_file(connection_id, file_name);
+    start(connection_id, file_name);
 }
 
-void file_receiver::get_file(std::size_t connection_id, const std::string& file_name)
+void file_receiver::start(std::size_t connection_id, const std::string& file_name)
 {
-    _clients.send(request_message(file_name), connection_id);
+    _clients.send(create_request_message(file_name), connection_id);
     _clients.receive(connection_id, 1, false, [this, connection_id, file_name](const async_message::shared_ptr& async_message)
     {
         request request(async_message);
@@ -23,19 +23,19 @@ void file_receiver::get_file(std::size_t connection_id, const std::string& file_
         
         file.open("copy_" + file_name, std::ios::out | std::ios::binary);
         cycles = get_cycles(request.size);
-        _clients.receive(connection_id, cycles, true, [this](const async_message::shared_ptr& async_message)
+        _clients.receive(connection_id, cycles, true, [this, file_name](const async_message::shared_ptr& async_message)
         {
             file.write(async_message->body(), async_message->body_length());
             if (--cycles == 0)
             {
                 file.close();
-                std::cout << "File transfer finished\n";
+                std::cout << "File " << file_name << " received" << std::endl;
             }
         });
     });
 }
 
-async_message::shared_ptr file_receiver::request_message(const std::string& file_name)
+async_message::shared_ptr file_receiver::create_request_message(const std::string& file_name)
 {
     request request(request::error_code::NONE, request::request_code::FILE, 0);
     request.host_to_network();
