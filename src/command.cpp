@@ -1,5 +1,5 @@
-#include <request.hpp>
 #include <command.hpp>
+#include <file_receiver.hpp>
 #include <iostream>
 #include <limits>
 /*#include <test_dirent.hpp>*/
@@ -24,7 +24,7 @@ void command::execute(const std::string& input)
     if (token[0] == "ping")
         ping(string_to_size_t(token[1]));
     if (token[0] == "getfile" && token.size() == 3)
-        get_file(string_to_size_t(token[1]), token[2]);
+        active_jobs.push_back(std::make_unique<file_receiver>(_output_strand, _clients, string_to_size_t(token[1]), token[2]));
     /*if (token[0] == "ls" && token.size() == 2)
         list_directory(token[1].c_str());*/
 }
@@ -40,46 +40,6 @@ void command::ping(std::size_t connection_id)
             std::cout << "\n";
         });
     });
-}
-
-void command::get_file(std::size_t connection_id, const std::string& file_name)
-{
-    // this should be only one send() with a request asking for a file. FIX IT
-    _clients.send(async_message::make_shared("getfile", _output_strand), connection_id);
-    _clients.send(async_message::make_shared(file_name, _output_strand), connection_id);
-    _clients.receive(connection_id, 1, false, [this, connection_id](const async_message::shared_ptr& async_message)
-    {
-        request request(async_message);
-        request.network_to_host();
-        if (error(request.error_code))
-            return;
-        
-        _clients.receive(connection_id, cycles(request.file_size), true, [this](const async_message::shared_ptr& async_message)
-        {
-            // should write to disk instead
-            //_output_strand.post([async_message]() { std::cout.write(async_message->body(), async_message->body_length()); });
-            std::cout.write(async_message->body(), async_message->body_length());
-        });
-    });
-}
-
-std::size_t command::error(request::member_t error_code)
-{
-    if (error_code)
-        _output_strand.post([error_code]() { std::cout << "remote error_code: " << error_code << "\n"; });
-
-    return error_code;
-}
-
-std::size_t command::cycles(request::member_t file_size)
-{
-    std::size_t cycles = file_size / async_message::max_body_length;
-    if (file_size % async_message::max_body_length != 0)
-        ++cycles;
-    
-    _output_strand.post([cycles]() { std::cout << "CYCLES: " << cycles << "\n"; });
-
-    return cycles;
 }
 
 std::vector<std::string> command::split_string(const std::string& s, char seperator)

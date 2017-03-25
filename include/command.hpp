@@ -4,8 +4,10 @@
 #include <standalone_asio.hpp>
 #include <connection_pool.hpp>
 #include <async_message.hpp>
-#include <request.hpp>
+#include <job.hpp>
+#include <memory>
 #include <string>
+#include <vector>
 
 class command
 {
@@ -18,11 +20,10 @@ public:
 private:
     connection_pool& _clients;
     asio::strand& _output_strand;
+    std::vector<std::unique_ptr<job>> active_jobs;
 
     std::vector<std::string> split_string(const std::string& s, char seperator);
     std::size_t string_to_size_t(const std::string& client_id);
-    std::size_t error(request::member_t error_code);
-    std::size_t cycles(request::member_t file_size);
 };
 
 #endif

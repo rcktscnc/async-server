@@ -6,13 +6,15 @@
 struct request
 {
     using member_t = std::uint32_t;
-    member_t code;
-    member_t error_code;
-    member_t file_size;
+    enum class request_code : member_t { NONE, PING, FILE };
+    enum class error_code : member_t { NONE, UNKNOWN, FILE_NOT_FOUND };
+    request_code code;
+    error_code error;
+    member_t size;
 
     request() = default;
     request(const async_message::shared_ptr& async_message);
-    request(member_t code, member_t error_code, member_t file_size);
+    request(request_code code, error_code error, member_t size);
     void network_to_host();
     void host_to_network();
 };
