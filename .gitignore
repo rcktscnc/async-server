@@ -3,3 +3,4 @@ obj/
 include/third_party/
 
 *.exe
+test.txt
