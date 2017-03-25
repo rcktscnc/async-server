@@ -86,11 +86,6 @@ void execute(tcp::socket& socket, asio::strand& output_strand)
     request request(async_message);
     request.network_to_host();
 
-    /*if (!std::memcmp(async_message->body(), "ping", 4))
-        ping(socket, output_strand);
-    if (!std::memcmp(async_message->body(), "getfile", 7))
-        get_file(socket, output_strand);*/
-
     if (request.code == request::request_code::PING)
         ping(socket, output_strand);
     if (request.code == request::request_code::FILE)

@@ -5,6 +5,7 @@
 #include <connection_pool.hpp>
 #include <request.hpp>
 #include <job.hpp>
+#include <fstream>
 
 class file_receiver : public job
 {
@@ -15,6 +16,7 @@ private:
     asio::strand& _output_strand;
     asio::strand _file_strand;
     connection_pool& _clients;
+    std::fstream file;
     std::size_t cycles = 0;
 
     void get_file(std::size_t connection_id, const std::string& file_name);
