@@ -1,5 +1,6 @@
 #include <standalone_asio.hpp>
 #include <async_message.hpp>
+#include <request.hpp>
 #include <iostream>
 #include <cstring>
 #include <fstream>
@@ -26,12 +27,16 @@ async_message::shared_ptr read_message(tcp::socket& socket, asio::strand& output
     return async_message;
 }
 
-void get_file(tcp::socket& socket, asio::strand& output_strand)
+std::string get_file_name(async_message::shared_ptr& async_message)
+{
+    return std::string(async_message->body() + sizeof(request),
+        async_message->body() + async_message->body_length());
+}
+
+void get_file(const std::string& file_name, tcp::socket& socket, asio::strand& output_strand)
 {
     using asio::detail::socket_ops::host_to_network_long;
 
-    auto file_name_message = read_message(socket, output_strand);
-    std::string file_name(file_name_message->body(), file_name_message->body() + file_name_message->body_length());
     std::fstream file(file_name, std::ios::in | std::ios::binary);
     std::uint32_t file_size = get_file_size(file_name);
     std::uint32_t error_code = 0;
@@ -58,7 +63,7 @@ void get_file(tcp::socket& socket, asio::strand& output_strand)
     {
         return;
     }
-        
+    
     while (std::size_t bytes_read = file.readsome(async_message->body(), async_message::max_body_length))
     {
         async_message->set_body_length(bytes_read);
@@ -78,10 +83,18 @@ void ping(tcp::socket& socket, asio::strand& output_strand)
 void execute(tcp::socket& socket, asio::strand& output_strand)
 {
     auto async_message = read_message(socket, output_strand);
-    if (!std::memcmp(async_message->body(), "ping", 4))
+    request request(async_message);
+    request.network_to_host();
+
+    /*if (!std::memcmp(async_message->body(), "ping", 4))
         ping(socket, output_strand);
     if (!std::memcmp(async_message->body(), "getfile", 7))
-        get_file(socket, output_strand);
+        get_file(socket, output_strand);*/
+
+    if (request.code == request::request_code::PING)
+        ping(socket, output_strand);
+    if (request.code == request::request_code::FILE)
+        get_file(get_file_name(async_message), socket, output_strand);
 }
 
 void client()

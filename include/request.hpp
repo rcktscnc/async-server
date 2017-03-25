@@ -14,7 +14,7 @@ struct request
 
     request() = default;
     request(const async_message::shared_ptr& async_message);
-    request(request_code code, error_code error, member_t size);
+    request(error_code error, request_code code, member_t size);
     void network_to_host();
     void host_to_network();
 };

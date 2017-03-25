@@ -9,7 +9,7 @@ request::request(const async_message::shared_ptr& async_message)
     std::memcpy(this, async_message->body(), sizeof(request));
 }
 
-request::request(request_code code, error_code error, member_t size)
+request::request(error_code error, request_code code, member_t size)
     : code(code), error(error), size(size)
 {
 }

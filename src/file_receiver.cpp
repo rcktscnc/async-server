@@ -12,8 +12,9 @@ file_receiver::file_receiver(asio::strand& output_strand, connection_pool& clien
 void file_receiver::get_file(std::size_t connection_id, const std::string& file_name)
 {
     // this should be only one send() with a request asking for a file. FIX IT
-    _clients.send(async_message::make_shared("getfile", _output_strand), connection_id);
-    _clients.send(async_message::make_shared(file_name, _output_strand), connection_id);
+    /*_clients.send(async_message::make_shared("getfile", _output_strand), connection_id);
+    _clients.send(async_message::make_shared(file_name, _output_strand), connection_id);*/
+    _clients.send(request_message(file_name), connection_id);
     _clients.receive(connection_id, 1, false, [this, connection_id](const async_message::shared_ptr& async_message)
     {
         request request(async_message);
@@ -34,6 +35,19 @@ void file_receiver::get_file(std::size_t connection_id, const std::string& file_
             }
         });
     });
+}
+
+async_message::shared_ptr file_receiver::request_message(const std::string& file_name)
+{
+    request request(request::error_code::NONE, request::request_code::FILE, 0);
+    request.host_to_network();
+    auto async_message = async_message::make_shared(_output_strand);
+    std::memcpy(async_message->body(), &request, sizeof(request));
+    std::memcpy(async_message->body() + sizeof(request), file_name.c_str(), file_name.length());
+    async_message->set_body_length(sizeof(request) + file_name.length());
+    async_message->encode_header();
+
+    return async_message;
 }
 
 bool file_receiver::error(request::error_code error)

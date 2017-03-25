@@ -31,7 +31,14 @@ void command::execute(const std::string& input)
 
 void command::ping(std::size_t connection_id)
 {
-    _clients.send(async_message::make_shared("ping", _output_strand), connection_id);
+    request request(request::error_code::NONE, request::request_code::PING, 0);
+    request.host_to_network();
+    auto async_message = async_message::make_shared(_output_strand);
+    std::memcpy(async_message->body(), &request, sizeof(request));
+    async_message->set_body_length(sizeof(request));
+    async_message->encode_header();
+
+    _clients.send(async_message, connection_id);
     _clients.receive(connection_id, 2, false, [this](const async_message::shared_ptr& async_message)
     {
         _output_strand.post([async_message]()
