@@ -26,6 +26,8 @@ void command::execute(const std::string& input)
         active_jobs.push_back(std::make_unique<ping>(_output_strand, _clients, string_to_size_t(token[1])));
     if (token[0] == "getfile" && token.size() == 3)
         active_jobs.push_back(std::make_unique<file_receiver>(_output_strand, _clients, string_to_size_t(token[1]), token[2]));
+    /*if (token[0] == "ls" && token.size() == 2)
+        list_directory(token[1].c_str());*/
 }
 
 std::vector<std::string> command::split_string(const std::string& s, char seperator)

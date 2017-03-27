@@ -12,12 +12,13 @@ ping::ping(asio::strand& output_strand, connection_pool& clients, std::size_t co
 void ping::start(std::size_t connection_id)
 {
     _clients.send(create_request_message(), connection_id);
-    _clients.receive(connection_id, 2, false, [this](const async_message::shared_ptr& async_message)
+    _timer_start = std::chrono::system_clock::now();
+    _clients.receive(connection_id, 1, false, [this](const async_message::shared_ptr& async_message)
     {
-        _output_strand.post([async_message]()
+        std::chrono::duration<float, std::milli> elapsed_ms = std::chrono::system_clock::now() - _timer_start;
+        _output_strand.post([elapsed_ms, async_message]()
         {
-            std::cout.write(async_message->body(), async_message->body_length());
-            std::cout << "\n";
+            std::cout << "client responded! Elapsed time: " << elapsed_ms.count() << "\n";
         });
     });
 }

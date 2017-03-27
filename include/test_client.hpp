@@ -75,8 +75,7 @@ void get_file(const std::string& file_name, tcp::socket& socket, asio::strand& o
 
 void ping(tcp::socket& socket, asio::strand& output_strand)
 {
-     async_message::shared_ptr async_message = async_message::make_shared("PONG RECEIVED!", output_strand);
-     asio::write(socket, asio::buffer(async_message->data(), async_message->length()));
+     async_message::shared_ptr async_message = async_message::make_shared("ping_received", output_strand);
      asio::write(socket, asio::buffer(async_message->data(), async_message->length()));
 }
 
