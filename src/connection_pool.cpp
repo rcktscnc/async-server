@@ -55,19 +55,15 @@ void connection_pool::send(const async_message::shared_ptr& message, std::size_t
     });
 }
 
-void connection_pool::receive(std::size_t connection_id, std::size_t cycles, bool reuse_buffer,
-    const async_message::handle& handle)
+void connection_pool::receive(std::size_t connection_id, bool reuse_buffer, const async_message::handle& handle)
 {
-    if (cycles == 0)
-        return;
-    
-    _container_strand.post([this, connection_id, cycles, reuse_buffer, handle = std::move(handle)]()
+    _container_strand.post([this, connection_id, reuse_buffer, handle = std::move(handle)]()
     {
         auto iterator = std::find_if(_connections.begin(), _connections.end(),
             [connection_id](const _pair_t& e) { return e.first == connection_id; });
         
         if (iterator != _connections.end())
-            iterator->second->receive(async_message::make_shared(_output_strand), cycles, reuse_buffer, handle);
+            iterator->second->receive(async_message::make_shared(_output_strand), reuse_buffer, handle);
         else
             _output_strand.post([](){ std::cout << "error: connection_pool::receive() - client not found\n"; });
     });

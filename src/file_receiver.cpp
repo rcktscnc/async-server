@@ -14,24 +14,29 @@ file_receiver::file_receiver(asio::strand& output_strand, connection_pool& clien
 void file_receiver::start(std::size_t connection_id, const std::string& file_name)
 {
     _clients.send(create_request_message(file_name), connection_id);
-    _clients.receive(connection_id, 1, false, [this, connection_id, file_name](const async_message::shared_ptr& async_message)
+    _clients.receive(connection_id, false, [this, connection_id, file_name](const async_message::shared_ptr& async_message)
     {
         request request(async_message);
         request.network_to_host();
         if (error(request.error))
-            return;
+            return true;
         
         file.open("copy_" + file_name, std::ios::out | std::ios::binary);
         cycles = get_cycles(request.size);
-        _clients.receive(connection_id, cycles, true, [this, file_name](const async_message::shared_ptr& async_message)
+        _clients.receive(connection_id, true, [this, file_name](const async_message::shared_ptr& async_message)
         {
             file.write(async_message->body(), async_message->body_length());
             if (--cycles == 0)
             {
                 file.close();
                 std::cout << "File " << file_name << " received" << std::endl;
+                return true;
             }
+            
+            return false;
         });
+
+        return true;
     });
 }
 

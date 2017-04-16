@@ -10,7 +10,7 @@ class async_message
 {
 public:
     using shared_ptr = std::shared_ptr<async_message>;
-    using handle = std::function<void(const async_message::shared_ptr&)>;
+    using handle = std::function<bool(const async_message::shared_ptr&)>;
     using header_t = std::uint32_t;
     enum { header_length = sizeof(header_t) };
     enum { max_body_length = 512 };

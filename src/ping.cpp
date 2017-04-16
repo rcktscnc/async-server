@@ -13,13 +13,15 @@ void ping::start(std::size_t connection_id)
 {
     _clients.send(create_request_message(), connection_id);
     _timer_start = std::chrono::system_clock::now();
-    _clients.receive(connection_id, 1, false, [this](const async_message::shared_ptr& async_message)
+    _clients.receive(connection_id, false, [this](const async_message::shared_ptr& async_message)
     {
         std::chrono::duration<float, std::milli> elapsed_ms = std::chrono::system_clock::now() - _timer_start;
         _output_strand.post([elapsed_ms, async_message]()
         {
             std::cout << "client responded! Elapsed time: " << elapsed_ms.count() << "\n";
         });
+
+        return true;
     });
 }
 
