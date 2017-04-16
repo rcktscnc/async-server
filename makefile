@@ -8,7 +8,7 @@ OUTPUT_TYPE = binary
 OUTPUT_NAME = bin.exe
 
 # Paths
-INCLUDE_PATH = -Iinclude -Iinclude/third_party
+INCLUDE_PATH = -Iinclude -Idependencies/include
 LIBRARY_PATH = -Llib
 SRC_PATH = src
 OBJ_PATH = obj

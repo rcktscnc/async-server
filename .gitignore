@@ -1,6 +1,7 @@
 .vscode/
 obj/
-include/third_party/
+dependencies/
 
 *.exe
 test.txt
+copy_test.txt

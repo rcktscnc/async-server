@@ -3,7 +3,7 @@
 #include <string.h>
 
 #ifdef _WIN32
-#include <windows/dirent.h>
+#include <win32/dirent.h>
 #else
 #include <dirent.h>
 #endif
